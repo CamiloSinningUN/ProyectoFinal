@@ -1,4 +1,4 @@
-
+import avatar from "../gameObjects/avatar.js";
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
@@ -7,45 +7,75 @@ export default class sceneLevel extends Phaser.Scene {
     // 1 = derecha
     // 2 = abajo
     // 3 = izquierda
-    Im = 2;
-    direction;
-    preload() {
-        //cactus
-        this.load.spritesheet("cactusBack", "./assest/CactusBack.png", { frameWidth: 40, frameHeight: 40 });
-        this.load.spritesheet("cactusFront", "./assest/CactusFront.png", { frameWidth: 40, frameHeight: 40 });
-        this.load.spritesheet("cactusSide", "./assest/CactusSide.png", { frameWidth: 40, frameHeight: 40 });
-        //End
-        //player
-        this.load.spritesheet("playerBack", "./assest/PlayerBack.png", { frameWidth: 48, frameHeight: 44 });
-        this.load.spritesheet("playerFront", "./assest/PlayerFront.png", { frameWidth: 48, frameHeight: 44 });
-        this.load.spritesheet("playerSide", "./assest/PlayerSide.png", { frameWidth: 48, frameHeight: 44 });
-        //End
 
-        //Audio
-        //Soundtrack
-        this.load.audio("SoundTrack", "./assest/SoundTrack.mp3");
-        //Shoot
-        this.load.audio("Shoot", "./assest/Shoot.mp3");
-        //Walk
-        //this.load.audio("Walk", "./assest/Walk.mp3");
-    }
+    Im = 1;
+    Shooting = false;
+    bulletTime = 0;
+
     create() {
-
         socket.on("shooting", () => {
             console.log("un jugador esta disparando");
         });
-        //Audio
-        let SoundTrack = this.sound.add("SoundTrack", { loop: true, volume: 0.05 });
-        this.Shoot = this.sound.add("Shoot", { volume: 0.2, rate: 1.5 });
-        //this.Walk = this.sound.add("Walk", { volume: 10, rate: 1 });
-        SoundTrack.play();
 
-        //Player
-        this.player = this.physics.add.sprite(100, 100, "PlayerFront");
-        this.player.setCollideWorldBounds(true);
+        this.BeginAnim();
+        this.BeginAudio();
+        this.player = new avatar(this, 600, 350, "player");
 
-        //playerFront
-        //playerFrontIdle
+        this.cactus = new avatar(this, 50, 50, "cactus");
+
+        this.player.anims.play("playerFrontAnimIdle");
+        this.cactus.anims.play("cactusFrontAnimIdle")
+
+        this.bullet = this.physics.add.image(100, 100, "Bullet")
+        this.bullet.scale = 0.04;
+        this.bullet.setVelocityY(-30);
+        this.bullet.setCollideWorldBounds(true);
+
+        //Physics
+        this.physics.add.collider(this.bullet, this.player, this.destroy, null, this);
+        this.physics.add.collider(this.bullet, this.cactus, this.destroy, null, this);
+       
+        
+
+        this.cursor = this.input.keyboard.createCursorKeys();
+        this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+    }
+    destroy() {
+        this.bullet.destroy();
+    }
+    update(time, delta) {
+        
+        //cactus
+        if (this.Im == 1) {
+            if (this.shoot.isUp) {
+                //Idle
+                this.cactus.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
+                //Moving  
+                this.cactus.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
+            }
+            //Shoot
+            if (this.shoot.isDown) {
+                socket.emit("shoot");
+                this.cactus.Shoot("cactus");
+            }
+        }
+        //player
+        else {
+            if (this.shoot.isUp) {
+                //Idle
+                this.player.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
+                //Moving  
+                this.player.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
+            }
+            //Shoot
+            if (this.shoot.isDown) {
+                socket.emit("shoot");
+                this.player.Shoot("player");
+            }
+        }
+    }
+    BeginAnim() {
         this.anims.create({
             key: "playerFrontAnimIdle",
             frames: this.anims.generateFrameNumbers("playerFront", {
@@ -55,7 +85,8 @@ export default class sceneLevel extends Phaser.Scene {
             repeat: -1,
             frameRate: 6
         });
-        this.player.anims.play("playerFrontAnimIdle");
+
+
         //playerFrontMoving
         this.anims.create({
             key: "playerFrontAnimMoving",
@@ -142,7 +173,7 @@ export default class sceneLevel extends Phaser.Scene {
             repeat: -1,
             frameRate: 6
         });
-        this.player.anims.play("playerSideAnimIdle");
+
         //playerSideMoving
         this.anims.create({
             key: "playerSideAnimMoving",
@@ -177,8 +208,7 @@ export default class sceneLevel extends Phaser.Scene {
         //End
 
         //cactus
-        this.cactus = this.physics.add.sprite(100, 100, "cactusFront");
-        this.cactus.setCollideWorldBounds(true);
+
 
         //cactusFront
         //cactusFrontIdle
@@ -191,7 +221,7 @@ export default class sceneLevel extends Phaser.Scene {
             repeat: -1,
             frameRate: 6
         });
-        this.cactus.anims.play("cactusFrontAnimIdle");
+
         //cactusFrontMoving
         this.anims.create({
             key: "cactusFrontAnimMoving",
@@ -279,7 +309,7 @@ export default class sceneLevel extends Phaser.Scene {
             repeat: -1,
             frameRate: 6
         });
-        this.cactus.anims.play("cactusSideAnimIdle");
+
         //cactusSideMoving
         this.anims.create({
             key: "cactusSideAnimMoving",
@@ -312,160 +342,17 @@ export default class sceneLevel extends Phaser.Scene {
         });
         //End
         //End
-
-
-        this.cursor = this.input.keyboard.createCursorKeys();
-        this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
-    update(time, delta) {
-
-        //cactus
-        if (this.Im == 1) {
-            //Idle
-            if (this.cursor.right.isUp && this.cursor.left.isUp && this.cursor.up.isUp && this.cursor.down.isUp && this.shoot.isUp) {
-                switch (this.direction) {
-                    case 0:
-                        this.cactus.anims.play("cactusBackAnimIdle", true);
-                        break;
-                    case 1:
-                        this.cactus.anims.play("cactusSideAnimIdle", true);
-                        break;
-
-                    case 2:
-                        this.cactus.anims.play("cactusFrontAnimIdle", true);
-                        break;
-
-                    case 3:
-                        this.cactus.anims.play("cactusSideAnimIdle", true);
-                        break;
-
-                }
-            }
-            //Shoot
-            if (this.shoot.isDown) {
-                socket.emit("shoot");
-                this.Shoot.play();
-                switch (this.direction) {
-                    case 0:
-                        this.cactus.anims.play("cactusBackAnimShoot", true);
-                        break;
-                    case 1:
-                        this.cactus.anims.play("cactusSideAnimShoot", true);
-                        break;
-
-                    case 2:
-                        this.cactus.anims.play("cactusFrontAnimShoot", true);
-                        break;
-
-                    case 3:
-                        this.cactus.anims.play("cactusSideAnimShoot", true);
-                        break;
-                }
-                
-
-               
-            }
-            //Moving
-            if (this.shoot.isUp) {
-                //this.Walk.play();
-                if (this.cursor.right.isDown) {
-                    this.cactus.flipX = false;
-                    this.cactus.anims.play("cactusSideAnimMoving", true);
-                    this.cactus.x = this.cactus.x + 1;
-                    this.direction = 1;
-                }
-                else if (this.cursor.left.isDown) {
-                    this.cactus.flipX = true;
-                    this.cactus.anims.play("cactusSideAnimMoving", true);
-                    this.cactus.x = this.cactus.x - 1;
-                    this.direction = 3;
-                }
-                else if (this.cursor.up.isDown) {
-                    this.cactus.anims.play("cactusBackAnimMoving", true);
-                    this.cactus.y = this.cactus.y - 1;
-                    this.direction = 0;
-                }
-                else if (this.cursor.down.isDown) {
-                    this.cactus.anims.play("cactusFrontAnimMoving", true);
-                    this.cactus.y = this.cactus.y + 1;
-                    this.direction = 2;
-                }
-            }
-        }
-        //player
-        else {
-            //Idle
-            if (this.cursor.right.isUp && this.cursor.left.isUp && this.cursor.up.isUp && this.cursor.down.isUp && this.shoot.isUp) {
-                switch (this.direction) {
-                    case 0:
-                        this.player.anims.play("playerBackAnimIdle", true);
-                        break;
-                    case 1:
-                        this.player.anims.play("playerSideAnimIdle", true);
-                        break;
-
-                    case 2:
-                        this.player.anims.play("playerFrontAnimIdle", true);
-                        break;
-
-                    case 3:
-                        this.player.anims.play("playerSideAnimIdle", true);
-                        break;
-
-                }
-            }
-            //Shoot
-            if (this.shoot.isDown) {
-                socket.emit("shoot");
-                this.Shoot.play();
-                switch (this.direction) {
-                    case 0:
-                        this.player.anims.play("playerBackAnimShoot", true);
-                        break;
-                    case 1:
-                        this.player.anims.play("playerSideAnimShoot", true);
-                        break;
-
-                    case 2:
-                        this.player.anims.play("playerFrontAnimShoot", true);
-                        break;
-
-                    case 3:
-                        this.player.anims.play("playerSideAnimShoot", true);
-                        break;
-
-                }
-                
-            }
-            //Moving
-            if (this.shoot.isUp) {
-                //this.Walk.play();
-                if (this.cursor.right.isDown) {
-                    this.player.flipX = false;
-                    this.player.anims.play("playerSideAnimMoving", true);
-                    this.player.x = this.player.x + 1;
-                    this.direction = 1;
-                }
-                else if (this.cursor.left.isDown) {
-                    this.player.flipX = true;
-                    this.player.anims.play("playerSideAnimMoving", true);
-                    this.player.x = this.player.x - 1;
-                    this.direction = 3;
-                }
-                else if (this.cursor.up.isDown) {
-                    this.player.anims.play("playerBackAnimMoving", true);
-                    this.player.y = this.player.y - 1;
-                    this.direction = 0;
-                }
-                else if (this.cursor.down.isDown) {
-                    this.player.anims.play("playerFrontAnimMoving", true);
-                    this.player.y = this.player.y + 1;
-                    this.direction = 2;
-                }
-            }
-        }
+    BeginAudio() {
+        //Audio
+        let SoundTrack = this.sound.add("SoundTrack", { loop: true, volume: 0.05 });
+        this.Shoot = this.sound.add("Shoot", { volume: 0.2, rate: 1.5 });
+        //this.Walk = this.sound.add("Walk", { volume: 10, rate: 1 });
+        SoundTrack.play();
     }
+
 }
+
 
 
 

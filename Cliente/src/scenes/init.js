@@ -1,5 +1,5 @@
 
-
+import Bootloader from "./bootloader.js";
 import sceneLevel from "./sceneLevel.js";
 const config = {
     width: 640,
@@ -12,6 +12,7 @@ const config = {
         default: "arcade",
     },
     scene:[
+        Bootloader,
         sceneLevel
     ]
     
