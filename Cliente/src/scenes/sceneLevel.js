@@ -1,14 +1,18 @@
 import avatar from "../gameObjects/avatar.js";
 import bullet from "../gameObjects/bullet.js"
+
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
-
-    Im = 1;
+    Im = 2;
     bulletTime = 0;
     create() {
         this.Waiting();
+
+        this.mapa = this.make.tilemap({key: 'Mapa'});
+        var atlas = this.mapa.addTilesetImage('tileSets','atlas');
+
         socket.on('grupo', () => {
             this.text.destroy();
         });

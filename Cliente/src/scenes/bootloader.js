@@ -3,6 +3,7 @@ export default class Bootloader extends Phaser.Scene{
     constructor() {
         super({ key: "Bootloader" });
     }
+    
     preload(){
         this.load.on("complete",()=>{
             this.scene.start("sceneLevel");
@@ -16,6 +17,9 @@ export default class Bootloader extends Phaser.Scene{
         this.load.spritesheet("playerBack", "./assest/PlayerBack.png", { frameWidth: 48, frameHeight: 44 });
         this.load.spritesheet("playerFront", "./assest/PlayerFront.png", { frameWidth: 48, frameHeight: 44 });
         this.load.spritesheet("playerSide", "./assest/PlayerSide.png", { frameWidth: 48, frameHeight: 44 });
+
+        this.load.tilemapTiledJSON('Mapa', './assest/Mapa.json');
+        this.load.image('atlas', './assest/atlas.png');
 
         //Bullet
         this.load.image("Bullet", "./assest/Bullet.png")
