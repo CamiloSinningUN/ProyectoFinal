@@ -8,32 +8,38 @@ export default class sceneLevel extends Phaser.Scene {
     Im = 1;
     bulletTime = 0;
     create() {
-
+        this.Waiting();
+        socket.on('grupo', () => {
+            this.text.destroy();
+        });
         this.BeginAnim();
         this.BeginAudio();
         this.player = new avatar(this, 600, 350, "player");
         this.cactus = new avatar(this, 50, 50, "cactus");
+        this.cactus.setOrigin(0.5, 0.5);
+        this.player.setOrigin(0.5, 0.5);
 
         this.player.anims.play("playerFrontAnimIdle");
-        this.cactus.anims.play("cactusFrontAnimIdle");      
+        this.cactus.anims.play("cactusFrontAnimIdle");
 
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     }
     destroyBulletPlayer() {
-        this.bullet.destroy();
+        this.bala.destroy();
         this.player.Alive = false;
 
     }
     destroyBulletCactus() {
-        this.bullet.destroy();
+        this.bala.destroy();
         this.cactus.Alive = false;
     }
-    update(time, delta) {
+    update(time, delta) {      
         //cactus
         if (!this.cactus.Alive) {
             this.cactus.Dead(this, "cactus", 33);
+            this.scene.restart();
         } else {
             if (this.Im == 1) {
                 if (this.shoot.isUp) {
@@ -45,15 +51,10 @@ export default class sceneLevel extends Phaser.Scene {
                 //Shoot
                 if (this.shoot.isDown) {
                     if (this.time.now > this.bulletTime) {
-                        socket.emit("shoot");
                         this.cactus.Shoot("cactus");
-                        this.Shoot.play();
-                        //Physics
-                        this.bala = new bullet(this,this.cactus.x,this.cactus.y,"bullet");
-
-                        this.physics.add.collider(this.bala, this.player, this.destroyBulletPlayer, null, this);
-                        this.physics.add.collider(this.bala, this.cactus, this.destroyBalaCactus, null, this);
-                        this.bulletTime = this.time.now + 2000;
+                        if (this.cactus.anims.currentFrame.isLast) {
+                            this.pullTheTriger(this.cactus);
+                        }
                     }
 
                 }
@@ -63,6 +64,7 @@ export default class sceneLevel extends Phaser.Scene {
         //player
         if (!this.player.Alive) {
             this.player.Dead(this, "player", 42);
+            this.scene.restart();
         } else {
             if (this.Im == 2) {
                 if (this.shoot.isUp) {
@@ -73,12 +75,61 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    socket.emit("shoot");
-                    this.player.Shoot("player");
+                    if (this.time.now > this.bulletTime) {
+                        this.player.Shoot("player");
+                        if (this.player.anims.currentFrame.isLast) {
+                            this.pullTheTriger(this.player);
+                        }
+                    }
                 }
             }
 
         }
+    }
+    Waiting() {
+        const configtext = {
+            x: 100,
+            y: 100,
+            text: 'Waiting for more players',
+            style: {
+                fontSize: 30,
+                align: 'right'
+            }
+        }
+        this.text = this.make.text(configtext);
+    }
+    pullTheTriger(name) {
+        socket.emit("shoot");
+        this.Shoot.play();
+        this.bala = new bullet(this, this.bulletX(name), this.bulletY(name), "bullet");
+        this.bala.Move(name);
+        this.physics.add.collider(this.bala, this.player, this.destroyBulletPlayer, null, this);
+        this.physics.add.collider(this.bala, this.cactus, this.destroyBulletCactus, null, this);
+        this.bulletTime = this.time.now + 2000;
+    }
+    bulletX(name) {
+        let x = name.x;
+        switch (name.direction) {
+            case 1:
+                x = name.x + 30;
+                break;
+            case 3:
+                x = name.x - 30;
+                break;
+        }
+        return x;
+    }
+    bulletY(name) {
+        let y = name.y;
+        switch (name.direction) {
+            case 0:
+                y = name.y - 25;
+                break;
+            case 2:
+                y = name.y + 25;
+                break;
+        }
+        return y;
     }
     BeginAnim() {
         this.anims.create({

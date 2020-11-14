@@ -17,17 +17,38 @@
         #container {
             margin-top: 50px;
         }
+
+        body {
+            background-image: url("assest/Fondo2.jpg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: 100% 100%;
+        }
+
+        .bottom-center {           
+            background-color: rgba(255, 0, 0, 0.329);
+            font-family: cursive;
+            font-size: xxx-large;
+            position: fixed;
+            bottom: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 
 <body>
+    <div class="bottom-center">Ultimate old west battle 2.0 pro max</div>
     <main>
         <div id="container"></div>
+
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.dev.js"></script>
     <script>
         const socket = io('http://localhost:2525');
     </script>
+
     <script src="./node_modules/phaser/dist/phaser.js"></script>
 
     <script src="./src/scenes/init.js" type="module"></script>
