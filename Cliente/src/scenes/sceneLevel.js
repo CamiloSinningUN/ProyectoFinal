@@ -1,78 +1,83 @@
 import avatar from "../gameObjects/avatar.js";
+import bullet from "../gameObjects/bullet.js"
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
-    // 0 = arriba
-    // 1 = derecha
-    // 2 = abajo
-    // 3 = izquierda
 
     Im = 1;
-    Shooting = false;
     bulletTime = 0;
-
     create() {
-        socket.on("shooting", () => {
-            console.log("un jugador esta disparando");
-        });
 
         this.BeginAnim();
         this.BeginAudio();
         this.player = new avatar(this, 600, 350, "player");
-
         this.cactus = new avatar(this, 50, 50, "cactus");
 
         this.player.anims.play("playerFrontAnimIdle");
-        this.cactus.anims.play("cactusFrontAnimIdle")
-
-        this.bullet = this.physics.add.image(100, 100, "Bullet")
-        this.bullet.scale = 0.04;
-        this.bullet.setVelocityY(-30);
-        this.bullet.setCollideWorldBounds(true);
-
-        //Physics
-        this.physics.add.collider(this.bullet, this.player, this.destroy, null, this);
-        this.physics.add.collider(this.bullet, this.cactus, this.destroy, null, this);
-       
-        
+        this.cactus.anims.play("cactusFrontAnimIdle");      
 
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     }
-    destroy() {
+    destroyBulletPlayer() {
         this.bullet.destroy();
+        this.player.Alive = false;
+
+    }
+    destroyBulletCactus() {
+        this.bullet.destroy();
+        this.cactus.Alive = false;
     }
     update(time, delta) {
-        
         //cactus
-        if (this.Im == 1) {
-            if (this.shoot.isUp) {
-                //Idle
-                this.cactus.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
-                //Moving  
-                this.cactus.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
-            }
-            //Shoot
-            if (this.shoot.isDown) {
-                socket.emit("shoot");
-                this.cactus.Shoot("cactus");
+        if (!this.cactus.Alive) {
+            this.cactus.Dead(this, "cactus", 33);
+        } else {
+            if (this.Im == 1) {
+                if (this.shoot.isUp) {
+                    //Idle
+                    this.cactus.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
+                    //Moving  
+                    this.cactus.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
+                }
+                //Shoot
+                if (this.shoot.isDown) {
+                    if (this.time.now > this.bulletTime) {
+                        socket.emit("shoot");
+                        this.cactus.Shoot("cactus");
+                        this.Shoot.play();
+                        //Physics
+                        this.bala = new bullet(this,this.cactus.x,this.cactus.y,"bullet");
+
+                        this.physics.add.collider(this.bala, this.player, this.destroyBulletPlayer, null, this);
+                        this.physics.add.collider(this.bala, this.cactus, this.destroyBalaCactus, null, this);
+                        this.bulletTime = this.time.now + 2000;
+                    }
+
+                }
             }
         }
+
         //player
-        else {
-            if (this.shoot.isUp) {
-                //Idle
-                this.player.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
-                //Moving  
-                this.player.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
+        if (!this.player.Alive) {
+            this.player.Dead(this, "player", 42);
+        } else {
+            if (this.Im == 2) {
+                if (this.shoot.isUp) {
+                    //Idle
+                    this.player.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
+                    //Moving  
+                    this.player.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
+                }
+                //Shoot
+                if (this.shoot.isDown) {
+                    socket.emit("shoot");
+                    this.player.Shoot("player");
+                }
             }
-            //Shoot
-            if (this.shoot.isDown) {
-                socket.emit("shoot");
-                this.player.Shoot("player");
-            }
+
         }
     }
     BeginAnim() {
@@ -107,17 +112,7 @@ export default class sceneLevel extends Phaser.Scene {
             repeat: 1,
             frameRate: 8
         });
-        //playerFrontDead
-        this.anims.create({
-            key: "playerFrontAnimDead",
-            frames: this.anims.generateFrameNumbers("playerFront", {
-                start: 56,
-                end: 69
-            }),
-            repeat: 1,
-            frameRate: 8
-        });
-        //End
+
 
         //playerback
         //playerBackIdle
@@ -150,17 +145,6 @@ export default class sceneLevel extends Phaser.Scene {
             repeat: 1,
             frameRate: 8
         });
-        //playerBackDead
-        this.anims.create({
-            key: "playerBackAnimDead",
-            frames: this.anims.generateFrameNumbers("playerBack", {
-                start: 56,
-                end: 69
-            }),
-            repeat: 1,
-            frameRate: 8
-        });
-        //End
 
         //playerSide
         //playerSideIdle
@@ -194,17 +178,7 @@ export default class sceneLevel extends Phaser.Scene {
             repeat: 1,
             frameRate: 8
         });
-        //playerSideDead
-        this.anims.create({
-            key: "playerSideAnimDead",
-            frames: this.anims.generateFrameNumbers("playerSide", {
-                start: 56,
-                end: 69
-            }),
-            repeat: 1,
-            frameRate: 8
-        });
-        //End
+
         //End
 
         //cactus
@@ -237,22 +211,12 @@ export default class sceneLevel extends Phaser.Scene {
             key: "cactusFrontAnimShoot",
             frames: this.anims.generateFrameNumbers("cactusFront", {
                 start: 22,
-                end: 32
+                end: 31
             }),
             repeat: 1,
             frameRate: 8
         });
         //cactusFrontDead
-        this.anims.create({
-            key: "cactusFrontAnimDead",
-            frames: this.anims.generateFrameNumbers("cactusFront", {
-                start: 33,
-                end: 33
-            }),
-            repeat: 1,
-            frameRate: 8
-        });
-        //End
 
         //cactusback
         //cactusBackIdle
@@ -280,22 +244,11 @@ export default class sceneLevel extends Phaser.Scene {
             key: "cactusBackAnimShoot",
             frames: this.anims.generateFrameNumbers("cactusBack", {
                 start: 22,
-                end: 32
+                end: 31
             }),
             repeat: 1,
             frameRate: 8
         });
-        //cactusBackDead
-        this.anims.create({
-            key: "cactusBackAnimDead",
-            frames: this.anims.generateFrameNumbers("cactusBack", {
-                start: 33,
-                end: 33
-            }),
-            repeat: 1,
-            frameRate: 8
-        });
-        //End
 
         //cactusSide
         //cactusSideIdle
@@ -325,17 +278,7 @@ export default class sceneLevel extends Phaser.Scene {
             key: "cactusSideAnimShoot",
             frames: this.anims.generateFrameNumbers("cactusSide", {
                 start: 22,
-                end: 32
-            }),
-            repeat: 1,
-            frameRate: 8
-        });
-        //cactusSideDead
-        this.anims.create({
-            key: "cactusSideAnimDead",
-            frames: this.anims.generateFrameNumbers("cactusSide", {
-                start: 33,
-                end: 33
+                end: 31
             }),
             repeat: 1,
             frameRate: 8
