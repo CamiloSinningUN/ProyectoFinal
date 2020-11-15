@@ -1,17 +1,21 @@
 import avatar from "../gameObjects/avatar.js";
 import bullet from "../gameObjects/bullet.js"
-
+import sceneWin from "./sceneWin.js";
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
     Im = 2;
     bulletTime = 0;
-    create() {
-        this.Waiting();
+    mapa;
+    create() {      
+        const mapa = this.make.tilemap({ key: 'mapa' });
+        const atlas = mapa.addTilesetImage('Atlas',"Atlas");
+        const layer = mapa.createStaticLayer(0, atlas, 0, 0);
+        
+        this.AddText("Waiting for more players");
 
-        this.mapa = this.make.tilemap({key: 'Mapa'});
-        var atlas = this.mapa.addTilesetImage('tileSets','atlas');
+
 
         socket.on('grupo', () => {
             this.text.destroy();
@@ -39,11 +43,12 @@ export default class sceneLevel extends Phaser.Scene {
         this.bala.destroy();
         this.cactus.Alive = false;
     }
-    update(time, delta) {      
+    update(time, delta) {
         //cactus
         if (!this.cactus.Alive) {
             this.cactus.Dead(this, "cactus", 33);
-            this.scene.restart();
+            this.cactus.Alive = true;
+            this.scene.add("sceneWin",sceneWin);           
         } else {
             if (this.Im == 1) {
                 if (this.shoot.isUp) {
@@ -68,7 +73,7 @@ export default class sceneLevel extends Phaser.Scene {
         //player
         if (!this.player.Alive) {
             this.player.Dead(this, "player", 42);
-            this.scene.restart();
+            this.scene.add("sceneWin", sceneWin);
         } else {
             if (this.Im == 2) {
                 if (this.shoot.isUp) {
@@ -90,11 +95,11 @@ export default class sceneLevel extends Phaser.Scene {
 
         }
     }
-    Waiting() {
+    AddText(string) {
         const configtext = {
             x: 100,
             y: 100,
-            text: 'Waiting for more players',
+            text: string,
             style: {
                 fontSize: 30,
                 align: 'right'
