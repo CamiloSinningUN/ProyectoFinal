@@ -5,17 +5,25 @@ export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
-    Im = 2;
+    Im = 1;
     bulletTime = 0;
-    mapa;
-    create() {      
+  
+        
+
+
+
+
+    create() {
         const mapa = this.make.tilemap({ key: 'mapa' });
         const atlas = mapa.addTilesetImage('Atlas',"Atlas");
-        const layer = mapa.createStaticLayer(0, atlas, 0, 0);
-        
+        const npc = mapa.addTilesetImage("NPC's","NPC");
+        const layer = mapa.createStaticLayer('Pasto', atlas, 0, 0);
+        const layer1 = mapa.createStaticLayer('Cosas del pueblo', atlas, 0, 0);
+        layer.setCollisionByProperty({solido : true});
+        //this.cameras.main.centerOn(100, 100);
         this.AddText("Waiting for more players");
-
-
+        //layer.physicsBodyType = Phaser.Physics.ARCADE;
+       
 
         socket.on('grupo', () => {
             this.text.destroy();
@@ -32,8 +40,14 @@ export default class sceneLevel extends Phaser.Scene {
 
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
+        this.physics.add.collider(this.player, layer, this.choque, null, this );
+        this.physics.add.collider(this.cactus, layer, this.choque, null, this);
     }
+
+    choque(){
+        console.log('me choqué');
+    }
+
     destroyBulletPlayer() {
         this.bala.destroy();
         this.player.Alive = false;
@@ -115,7 +129,10 @@ export default class sceneLevel extends Phaser.Scene {
         this.physics.add.collider(this.bala, this.player, this.destroyBulletPlayer, null, this);
         this.physics.add.collider(this.bala, this.cactus, this.destroyBulletCactus, null, this);
         this.bulletTime = this.time.now + 2000;
+        
     }
+
+
     bulletX(name) {
         let x = name.x;
         switch (name.direction) {
@@ -353,6 +370,8 @@ export default class sceneLevel extends Phaser.Scene {
         //this.Walk = this.sound.add("Walk", { volume: 10, rate: 1 });
         SoundTrack.play();
     }
+
+    
 
 }
 
