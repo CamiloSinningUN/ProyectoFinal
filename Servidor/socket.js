@@ -31,3 +31,5 @@ var port = 2525;
 http.listen(port, function () {
     console.log("listening in " + port)
 });
+
+// Test para comprobar que la conexion VSC a git es exitosa
