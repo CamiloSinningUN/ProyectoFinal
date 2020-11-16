@@ -1,7 +1,7 @@
 
 export default class sceneWin extends Phaser.Scene {
     constructor() {
-        super({ key: "sceneWin", active: true });
+        super({ key: "sceneWin" });
     }
     sw = true;
     create() {

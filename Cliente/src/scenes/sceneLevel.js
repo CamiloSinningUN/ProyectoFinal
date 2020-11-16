@@ -1,56 +1,85 @@
 import avatar from "../gameObjects/avatar.js";
 import bullet from "../gameObjects/bullet.js"
-import sceneWin from "./sceneWin.js";
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
     Im = 1;
     bulletTime = 0;
-  
-        
-
-
-
-
     create() {
-      
         const mapa = this.make.tilemap({ key: 'mapa' });
-        const atlas = mapa.addTilesetImage('Atlas',"Atlas");
-        const npc = mapa.addTilesetImage("NPC's","NPC");
-        const layer = mapa.createDynamicLayer('Pasto', atlas, 0, 0);
-        const array = [atlas,npc];
-        const layer1 = mapa.createDynamicLayer('Cosas del pueblo', array, 0, 0);
-        layer.setCollisionByProperty({solido: true});
-        //this.cameras.main.centerOn(100, 100);
+        const atlas = mapa.addTilesetImage('Atlas', "Atlas");
+        const npc = mapa.addTilesetImage("NPC's", "NPC");
+        const layer = mapa.createStaticLayer('Pasto', atlas, 0, 0);
+        const array = [atlas, npc];
+        const layer1 = mapa.createStaticLayer('Cosas del pueblo', array, 0, 0);
+        layer.setCollisionByProperty({ solido: true });
         this.AddText("Waiting for more players");
-        //layer.physicsBodyType = Phaser.Physics.ARCADE;
-       
+        this.Counter();
+
+        //layer.debug = true;
+
+        //    const debugGraphics = this.add.graphics().setAlpha(0.75);
+        //    layer.renderDebug(debugGraphics, {
+        //         tileColor: null, // Color of non-colliding tiles
+        //         collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        //         faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+        //     });
 
         socket.on('grupo', () => {
             this.text.destroy();
         });
+
         this.BeginAnim();
         this.BeginAudio();
+
         this.player = new avatar(this, 600, 350, "player");
         this.cactus = new avatar(this, 50, 50, "cactus");
+
         this.cactus.setOrigin(0.5, 0.5);
         this.player.setOrigin(0.5, 0.5);
+
+        this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
+        this.player.body.setOffset(15, 15);
+
+        this.cactus.body.setSize(this.cactus.width * 0.8, this.cactus.height * 0.7);
+        this.cactus.body.setOffset(7, 15);
+
 
         this.player.anims.play("playerFrontAnimIdle");
         this.cactus.anims.play("cactusFrontAnimIdle");
 
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.physics.add.collider(this.player, layer, this.choque, null, this);
-        this.physics.add.collider(this.cactus, layer, this.choque, null, this);
-        console.log(layer);
-    }
 
-    choque(){
-        console.log('me choqué');
+        this.physics.add.collider(layer, this.player);
+        this.physics.add.collider(layer, this.cactus);
     }
+    cooldown() {
 
+        let string;
+        if (this.bulletTime > this.time.now) {
+            string = parseInt((this.bulletTime - this.time.now)/1000);
+
+        } else {
+            string = "Ready";
+        }
+
+        this.cooldowntext.setText(string);
+
+    }
+    Counter() {
+        const configtext = {
+            x: 20,
+            y: 20,
+            text: "Ready",
+            style: {
+                fontSize: 30,
+                align: 'Center'
+            }
+        }
+        this.cooldowntext = this.make.text(configtext);
+    }
     destroyBulletPlayer() {
         this.bala.destroy();
         this.player.Alive = false;
@@ -61,12 +90,16 @@ export default class sceneLevel extends Phaser.Scene {
         this.cactus.Alive = false;
     }
     update(time, delta) {
+
+        this.cooldown();
+        // this.cooldowntext.destroy();
+        this.cactus.body.setVelocity(0, 0);
         //cactus
         if (!this.cactus.Alive) {
             this.cactus.Dead(this, "cactus", 33);
             this.cactus.Alive = true;
-            this.scene.add("sceneWin",sceneWin);   
-            this.SoundTrack.stop();      
+            this.scene.start("sceneWin");
+            this.SoundTrack.stop();
         } else {
             if (this.Im == 1) {
                 if (this.shoot.isUp) {
@@ -88,11 +121,12 @@ export default class sceneLevel extends Phaser.Scene {
             }
         }
 
+        this.player.body.setVelocity(0, 0);
         //player
         if (!this.player.Alive) {
             this.player.Dead(this, "player", 42);
             this.player.Alive = true;
-            this.scene.add("sceneWin", sceneWin);
+            this.scene.start("sceneWin");
             this.SoundTrack.stop();
         } else {
             if (this.Im == 2) {
@@ -131,14 +165,13 @@ export default class sceneLevel extends Phaser.Scene {
         socket.emit("shoot");
         this.Shoot.play();
         this.bala = new bullet(this, this.bulletX(name), this.bulletY(name), "bullet");
+        this.bala.body.setOffset(0, 200);
         this.bala.Move(name);
         this.physics.add.collider(this.bala, this.player, this.destroyBulletPlayer, null, this);
         this.physics.add.collider(this.bala, this.cactus, this.destroyBulletCactus, null, this);
         this.bulletTime = this.time.now + 2000;
-        
+
     }
-
-
     bulletX(name) {
         let x = name.x;
         switch (name.direction) {
@@ -193,9 +226,8 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 33
             }),
             repeat: 1,
-            frameRate: 8
+            frameRate: 7
         });
-
 
         //playerback
         //playerBackIdle
@@ -226,9 +258,8 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 33
             }),
             repeat: 1,
-            frameRate: 8
+            frameRate: 7
         });
-
         //playerSide
         //playerSideIdle
         this.anims.create({
@@ -259,7 +290,7 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 33
             }),
             repeat: 1,
-            frameRate: 8
+            frameRate: 7
         });
 
         //End
@@ -297,7 +328,7 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 31
             }),
             repeat: 1,
-            frameRate: 8
+            frameRate: 10
         });
         //cactusFrontDead
 
@@ -330,7 +361,7 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 31
             }),
             repeat: 1,
-            frameRate: 8
+            frameRate: 10
         });
 
         //cactusSide
@@ -364,7 +395,7 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 31
             }),
             repeat: 1,
-            frameRate: 8
+            frameRate: 10
         });
         //End
         //End
@@ -377,7 +408,7 @@ export default class sceneLevel extends Phaser.Scene {
         this.SoundTrack.play();
     }
 
-    
+
 
 }
 

@@ -3,8 +3,9 @@ export default class avatar extends Phaser.GameObjects.Sprite {
         super(scene, x, y, type);
         scene.add.existing(this);
         scene.physics.world.enable(this);
-        this.body.immovable = true;
+        this.physicsBodyType = Phaser.Physics.ARCADE;
         this.body.setCollideWorldBounds(true);
+        
 
     }
     direction;
@@ -12,30 +13,30 @@ export default class avatar extends Phaser.GameObjects.Sprite {
     // 1 = derecha
     // 2 = abajo
     // 3 = izquierda
-    Alive = true;
-
+    Alive = true;    
     Move(up, right, down, left, name) {
 
         if (right.isDown) {
             this.flipX = false;
             this.anims.play(name + "SideAnimMoving", true);
-            this.x = this.x + 1;
+            //this.x = this.x + 1;
+            this.body.setVelocityX(50);
             this.direction = 1;
         }
         else if (left.isDown) {
             this.flipX = true;
             this.anims.play(name + "SideAnimMoving", true);
-            this.x = this.x - 1;
+            this.body.setVelocityX(-50);
             this.direction = 3;
         }
         else if (up.isDown) {
             this.anims.play(name + "BackAnimMoving", true);
-            this.y = this.y - 1;
+            this.body.setVelocityY(-50);
             this.direction = 0;
         }
         else if (down.isDown) {
             this.anims.play(name + "FrontAnimMoving", true);
-            this.y = this.y + 1;
+            this.body.setVelocityY(50);
             this.direction = 2;
         }
     }
@@ -61,25 +62,25 @@ export default class avatar extends Phaser.GameObjects.Sprite {
         }
     }
     Shoot(name) {
-            switch (this.direction) {
-                case 0:
-                    this.anims.play(name + "BackAnimShoot", true);
+        switch (this.direction) {
+            case 0:
+                this.anims.play(name + "BackAnimShoot", true);
 
-                    break;
-                case 1:
-                    this.anims.play(name + "SideAnimShoot", true);
+                break;
+            case 1:
+                this.anims.play(name + "SideAnimShoot", true);
 
-                    break;
+                break;
 
-                case 2:
-                    this.anims.play(name + "FrontAnimShoot", true);
+            case 2:
+                this.anims.play(name + "FrontAnimShoot", true);
 
-                    break;
+                break;
 
-                case 3:
-                    this.anims.play(name + "SideAnimShoot", true);
-                    break;
-            }
+            case 3:
+                this.anims.play(name + "SideAnimShoot", true);
+                break;
+        }
     }
     Dead(scene, name, num) {
         scene.add.sprite(this.x, this.y, name + "Back", num);
