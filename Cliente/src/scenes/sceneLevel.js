@@ -1,12 +1,16 @@
 import avatar from "../gameObjects/avatar.js";
 import bullet from "../gameObjects/bullet.js"
+const players = {};
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
     Im = 1;
     bulletTime = 0;
+
     create() {
+        const self = this;
+        this.players = this.physics.add.group();
         const mapa = this.make.tilemap({ key: 'mapa' });
         const atlas = mapa.addTilesetImage('Atlas', "Atlas");
         const npc = mapa.addTilesetImage("NPC's", "NPC");
@@ -59,7 +63,7 @@ export default class sceneLevel extends Phaser.Scene {
 
         let string;
         if (this.bulletTime > this.time.now) {
-            string = parseInt((this.bulletTime - this.time.now)/1000);
+            string = parseInt((this.bulletTime - this.time.now) / 1000);
 
         } else {
             string = "Ready";
