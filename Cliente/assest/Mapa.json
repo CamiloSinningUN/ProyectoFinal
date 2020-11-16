@@ -1,5 +1,4 @@
 { "compressionlevel":-1,
-
  "editorsettings":
     {
      "export":
@@ -8,7 +7,6 @@
          "target":"Mapa.json"
         }
     },
-
  "height":25,
  "infinite":false,
  "layers":[
@@ -17,7 +15,6 @@
          "height":25,
          "id":1,
          "name":"Pasto",
-
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
@@ -30,7 +27,6 @@
          "height":25,
          "id":4,
          "name":"Cosas del pueblo",
-
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
@@ -13946,7 +13942,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -13991,7 +13987,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14000,7 +13996,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14009,7 +14005,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14018,7 +14014,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14423,7 +14419,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14432,7 +14428,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14441,7 +14437,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14846,7 +14842,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14855,7 +14851,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -14864,7 +14860,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15215,7 +15211,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15260,7 +15256,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15269,7 +15265,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15278,7 +15274,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15287,7 +15283,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15638,7 +15634,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15647,7 +15643,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15656,7 +15652,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15665,7 +15661,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15674,7 +15670,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15683,7 +15679,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15692,7 +15688,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15701,7 +15697,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -15710,7 +15706,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16061,7 +16057,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16070,7 +16066,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16079,7 +16075,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16088,7 +16084,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16097,7 +16093,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16106,7 +16102,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16115,7 +16111,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16124,7 +16120,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -16133,7 +16129,7 @@
                         {
                          "name":"solido",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }]
                 }, 
                 {
@@ -17203,7 +17199,7 @@
         {
          "columns":6,
          "firstgid":2101,
-         "image":"..\/..\/..\/..\/..\/Desktop\/vacaroxa--generic-old-west-graphics--v.1.0\/Generic Old West Graphicis\/NPC\/NPC's.png",
+         "image":"..\/..\/..\/..\/vacaroxa--generic-old-west-graphics--v.1.0\/Generic Old West Graphicis\/NPC\/NPC's.png",
          "imageheight":108,
          "imagewidth":108,
          "margin":0,

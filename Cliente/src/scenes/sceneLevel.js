@@ -14,12 +14,14 @@ export default class sceneLevel extends Phaser.Scene {
 
 
     create() {
+      
         const mapa = this.make.tilemap({ key: 'mapa' });
         const atlas = mapa.addTilesetImage('Atlas',"Atlas");
         const npc = mapa.addTilesetImage("NPC's","NPC");
-        const layer = mapa.createStaticLayer('Pasto', atlas, 0, 0);
-        const layer1 = mapa.createStaticLayer('Cosas del pueblo', atlas, 0, 0);
-        layer.setCollisionByProperty({solido : true});
+        const layer = mapa.createDynamicLayer('Pasto', atlas, 0, 0);
+        const array = [atlas,npc];
+        const layer1 = mapa.createDynamicLayer('Cosas del pueblo', array, 0, 0);
+        layer.setCollisionByProperty({solido: true});
         //this.cameras.main.centerOn(100, 100);
         this.AddText("Waiting for more players");
         //layer.physicsBodyType = Phaser.Physics.ARCADE;
@@ -40,8 +42,9 @@ export default class sceneLevel extends Phaser.Scene {
 
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.physics.add.collider(this.player, layer, this.choque, null, this );
+        this.physics.add.collider(this.player, layer, this.choque, null, this);
         this.physics.add.collider(this.cactus, layer, this.choque, null, this);
+        console.log(layer);
     }
 
     choque(){
@@ -62,7 +65,8 @@ export default class sceneLevel extends Phaser.Scene {
         if (!this.cactus.Alive) {
             this.cactus.Dead(this, "cactus", 33);
             this.cactus.Alive = true;
-            this.scene.add("sceneWin",sceneWin);           
+            this.scene.add("sceneWin",sceneWin);   
+            this.SoundTrack.stop();      
         } else {
             if (this.Im == 1) {
                 if (this.shoot.isUp) {
@@ -87,7 +91,9 @@ export default class sceneLevel extends Phaser.Scene {
         //player
         if (!this.player.Alive) {
             this.player.Dead(this, "player", 42);
+            this.player.Alive = true;
             this.scene.add("sceneWin", sceneWin);
+            this.SoundTrack.stop();
         } else {
             if (this.Im == 2) {
                 if (this.shoot.isUp) {
@@ -365,10 +371,10 @@ export default class sceneLevel extends Phaser.Scene {
     }
     BeginAudio() {
         //Audio
-        let SoundTrack = this.sound.add("SoundTrack", { loop: true, volume: 0.05 });
+        this.SoundTrack = this.sound.add("SoundTrack", { loop: true, volume: 0.05 });
         this.Shoot = this.sound.add("Shoot", { volume: 0.2, rate: 1.5 });
         //this.Walk = this.sound.add("Walk", { volume: 10, rate: 1 });
-        SoundTrack.play();
+        this.SoundTrack.play();
     }
 
     
