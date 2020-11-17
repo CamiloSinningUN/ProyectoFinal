@@ -4,27 +4,24 @@ export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
-    Im = 1;
+    Im = 2;
     bulletTime = 0;
     create() {
+        //Creación de mapa
         const mapa = this.make.tilemap({ key: 'mapa' });
+
         const atlas = mapa.addTilesetImage('Atlas', "Atlas");
         const npc = mapa.addTilesetImage("NPC's", "NPC");
+
         const layer = mapa.createStaticLayer('Pasto', atlas, 0, 0);
         const array = [atlas, npc];
         const layer1 = mapa.createStaticLayer('Cosas del pueblo', array, 0, 0);
+        
         layer.setCollisionByProperty({ solido: true });
+
+        //Textos y contadores
         this.AddText("Waiting for more players");
         this.Counter();
-
-        //layer.debug = true;
-
-        //    const debugGraphics = this.add.graphics().setAlpha(0.75);
-        //    layer.renderDebug(debugGraphics, {
-        //         tileColor: null, // Color of non-colliding tiles
-        //         collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-        //         faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-        //     });
 
         socket.on('grupo', () => {
             this.text.destroy();
@@ -42,9 +39,8 @@ export default class sceneLevel extends Phaser.Scene {
         this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
         this.player.body.setOffset(15, 15);
 
-        this.cactus.body.setSize(this.cactus.width * 0.8, this.cactus.height * 0.7);
-        this.cactus.body.setOffset(7, 15);
-
+        this.cactus.body.setSize(this.cactus.width * 0.4, this.cactus.height * 0.7);
+        this.cactus.body.setOffset(14, 15);
 
         this.player.anims.play("playerFrontAnimIdle");
         this.cactus.anims.play("cactusFrontAnimIdle");
@@ -62,7 +58,7 @@ export default class sceneLevel extends Phaser.Scene {
             string = parseInt((this.bulletTime - this.time.now)/1000);
 
         } else {
-            string = "Ready";
+            string = "Shoot!";
         }
 
         this.cooldowntext.setText(string);
@@ -72,8 +68,10 @@ export default class sceneLevel extends Phaser.Scene {
         const configtext = {
             x: 20,
             y: 20,
-            text: "Ready",
+            text: "Shoot!",
             style: {
+                color: "#F54141",
+                backgroundColor:"#00000050",
                 fontSize: 30,
                 align: 'Center'
             }
@@ -89,6 +87,7 @@ export default class sceneLevel extends Phaser.Scene {
         this.bala.destroy();
         this.cactus.Alive = false;
     }
+    //Se ejecuta todo el tiempo esta función
     update(time, delta) {
 
         this.cooldown();
