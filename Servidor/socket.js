@@ -1,20 +1,23 @@
+const path = require('path');
+const jsdom = require('jsdom');
 const { Socket } = require("dgram");
 let app = require("express");
 let http = require("http").Server(app);
 let io = require("socket.io")(http);
+const { JSDOM } = jsdom;
 let Players = 0;
 let players;
 let Groups = 0;
 let connectionsLimit = 2;
 io.on("connection", (socket) => {
-    console.log("se conecto un vato");
-    Players++;
-  if(Players%2==0){
-     io.sockets.emit("par") 
-     Groups++;
+  console.log("se conecto un vato");
+  Players++;
+  if (Players % 2 == 0) {
+    io.sockets.emit("par")
+    Groups++;
   }
   socket.on('disconnect', (reason) => {
-      console.log("se desconecto un vato");
+    console.log("se desconecto un vato");
     Players--;
   });
   if (io.engine.clientsCount > connectionsLimit) {
@@ -29,7 +32,20 @@ io.on("connection", (socket) => {
 var port = 2525;
 
 http.listen(port, function () {
-    console.log("listening in " + port)
+  console.log("listening in " + port)
 });
 
+
+function setupAuthoritativePhaser() {
+  JSDOM.fromFile(path.join(__dirname, '../Cliente/index.html'), {
+    // To run the scripts in the html file
+    runScripts: "dangerously",
+    // Also load supported external resources
+    resources: "usable",
+    // So requestAnimatinFrame events fire
+    pretendToBeVisual: true
+  });
+}
+
+setupAuthoritativePhaser();
 // Test para comprobar que la conexion VSC a git es exitosa
