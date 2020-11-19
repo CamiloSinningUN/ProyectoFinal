@@ -1,45 +1,62 @@
 export default class avatar extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, type) {
         super(scene, x, y, type);
+        //Incializa avatar
         scene.add.existing(this);
         scene.physics.world.enable(this);
         this.physicsBodyType = Phaser.Physics.ARCADE;
         this.body.setCollideWorldBounds(true);
-        
 
+        //Incializa pies de avatar
+        this.foots = scene.add.rectangle(x, y + this.body.halfHeight, 15, 8, 0xff0000, 0);
+        scene.physics.world.enable(this.foots);  
+              
     }
+    //En que dirección esta mirando el avatar
     direction;
     // 0 = arriba
     // 1 = derecha
     // 2 = abajo
     // 3 = izquierda
-    Alive = true;    
-    Move(up, right, down, left, name) {
 
+    //Pies del avatar
+    foots;
+
+    //Si esta vivo o no
+    Alive = true;
+
+    Move(up, right, down, left, name) {
         if (right.isDown) {
             this.flipX = false;
             this.anims.play(name + "SideAnimMoving", true);
             //this.x = this.x + 1;
             this.body.setVelocityX(50);
+            this.foots.body.setVelocityX(50);
             this.direction = 1;
         }
         else if (left.isDown) {
             this.flipX = true;
             this.anims.play(name + "SideAnimMoving", true);
             this.body.setVelocityX(-50);
+            this.foots.body.setVelocityX(-50);
             this.direction = 3;
         }
         else if (up.isDown) {
             this.anims.play(name + "BackAnimMoving", true);
             this.body.setVelocityY(-50);
+            this.foots.body.setVelocityY(-50);
             this.direction = 0;
         }
         else if (down.isDown) {
             this.anims.play(name + "FrontAnimMoving", true);
             this.body.setVelocityY(50);
+            this.foots.body.setVelocityY(50);
             this.direction = 2;
         }
+        this.x = this.foots.x;
+        this.y  = this.foots.y - this.body.halfHeight;
     }
+
     Idle(up, right, down, left, name) {
         if (right.isUp && left.isUp && up.isUp && down.isUp) {
             switch (this.direction) {
@@ -61,6 +78,7 @@ export default class avatar extends Phaser.GameObjects.Sprite {
             }
         }
     }
+
     Shoot(name) {
         switch (this.direction) {
             case 0:
@@ -82,6 +100,7 @@ export default class avatar extends Phaser.GameObjects.Sprite {
                 break;
         }
     }
+
     Dead(scene, name, num) {
         scene.add.sprite(this.x, this.y, name + "Back", num);
         this.destroy();

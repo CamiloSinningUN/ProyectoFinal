@@ -8,12 +8,12 @@ const config = {
     parent: "container",
     type: Phaser.AUTO,
     pixelArt: true,
-
     physics: {
         default: "arcade",
         arcade:{
             gravity: 0,
             debug: true
+
         }
     },
     scene:[

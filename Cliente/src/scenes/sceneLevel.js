@@ -5,43 +5,45 @@ export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
     }
+
+    //De prueba
     Im = 2;
+
+    //Para retrasar el tiempo entre disparos
     bulletTime = 0;
 
+    //Carga en la escena lo requerido
     create() {
 
-        //Creación de mapa
 
         const self = this;
         this.players = this.physics.add.group();
 
+        //Creación de mapa
         const mapa = this.make.tilemap({ key: 'mapa' });
-
         const atlas = mapa.addTilesetImage('Atlas', "Atlas");
         const npc = mapa.addTilesetImage("NPC's", "NPC");
-
         const layer = mapa.createStaticLayer('Pasto', atlas, 0, 0);
         const array = [atlas, npc];
         const layer1 = mapa.createStaticLayer('Cosas del pueblo', array, 0, 0);
-        
         layer.setCollisionByProperty({ solido: true });
 
         //Textos y contadores
         this.AddText("Waiting for more players");
         this.Counter();
 
+        //Servidor
         socket.on('grupo', () => {
             this.text.destroy();
         });
 
+        //Carga animaciones y audio en la escena
         this.BeginAnim();
         this.BeginAudio();
 
+        //Inicializa y configura los avatares
         this.player = new avatar(this, 600, 350, "player");
         this.cactus = new avatar(this, 50, 50, "cactus");
-
-        this.cactus.setOrigin(0.5, 0.5);
-        this.player.setOrigin(0.5, 0.5);
 
         this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
         this.player.body.setOffset(15, 15);
@@ -52,14 +54,18 @@ export default class sceneLevel extends Phaser.Scene {
         this.player.anims.play("playerFrontAnimIdle");
         this.cactus.anims.play("cactusFrontAnimIdle");
 
+        //Asigna las fisicas con el mapa
+        this.physics.add.collider(layer, this.player.foots);
+        this.physics.add.collider(layer, this.cactus.foots);
+
+        //Crea variables para los botones a usar
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        this.physics.add.collider(layer, this.player);
-        this.physics.add.collider(layer, this.cactus);
     }
-    cooldown() {
 
+    //Muestra en pantalla el tiempo restante para disparar
+    cooldown() {
         let string;
         if (this.bulletTime > this.time.now) {
             string = parseInt((this.bulletTime - this.time.now) / 1000);
@@ -67,10 +73,10 @@ export default class sceneLevel extends Phaser.Scene {
         } else {
             string = "Shoot!";
         }
-
         this.cooldowntext.setText(string);
-
     }
+
+    //Inicializa el texto donde se mostrara el cooldown
     Counter() {
         const configtext = {
             x: 20,
@@ -78,28 +84,36 @@ export default class sceneLevel extends Phaser.Scene {
             text: "Shoot!",
             style: {
                 color: "#F54141",
-                backgroundColor:"#00000050",
+                backgroundColor: "#00000050",
                 fontSize: 30,
                 align: 'Center'
             }
         }
         this.cooldowntext = this.make.text(configtext);
     }
+
+    //Mata al vaquero
     destroyBulletPlayer() {
         this.bala.destroy();
         this.player.Alive = false;
 
     }
+
+    //Mata al Cactus
     destroyBulletCactus() {
         this.bala.destroy();
         this.cactus.Alive = false;
     }
+
     //Se ejecuta todo el tiempo esta función
     update(time, delta) {
-
+        //Muestra el tiempo restante para disparar
         this.cooldown();
-        // this.cooldowntext.destroy();
+
+        //Pone la velocidad de cactus en cero
         this.cactus.body.setVelocity(0, 0);
+        this.cactus.foots.body.setVelocity(0, 0);
+
         //cactus
         if (!this.cactus.Alive) {
             this.cactus.Dead(this, "cactus", 33);
@@ -127,8 +141,10 @@ export default class sceneLevel extends Phaser.Scene {
             }
         }
 
+        //Pone la velocidad del vaquero en cero
+        this.player.foots.body.setVelocity(0, 0);
         this.player.body.setVelocity(0, 0);
-        //player
+        //vaquero
         if (!this.player.Alive) {
             this.player.Dead(this, "player", 42);
             this.player.Alive = true;
@@ -155,6 +171,8 @@ export default class sceneLevel extends Phaser.Scene {
 
         }
     }
+
+    //Añade un texto determinado en la posicion 100,100
     AddText(string) {
         const configtext = {
             x: 100,
@@ -167,6 +185,8 @@ export default class sceneLevel extends Phaser.Scene {
         }
         this.text = this.make.text(configtext);
     }
+
+    //Se ejecuta cuando un avatar dispara
     pullTheTriger(name) {
         socket.emit("shoot");
         this.Shoot.play();
@@ -178,6 +198,8 @@ export default class sceneLevel extends Phaser.Scene {
         this.bulletTime = this.time.now + 2000;
 
     }
+
+    //Calcula la posición en x de generación de la bala
     bulletX(name) {
         let x = name.x;
         switch (name.direction) {
@@ -190,6 +212,8 @@ export default class sceneLevel extends Phaser.Scene {
         }
         return x;
     }
+
+    //Calcula la posición en y de generación de la bala
     bulletY(name) {
         let y = name.y;
         switch (name.direction) {
@@ -202,6 +226,8 @@ export default class sceneLevel extends Phaser.Scene {
         }
         return y;
     }
+
+    //Incializa las animaciones de los personajes
     BeginAnim() {
         this.anims.create({
             key: "playerFrontAnimIdle",
@@ -406,11 +432,16 @@ export default class sceneLevel extends Phaser.Scene {
         //End
         //End
     }
+
+    //Incializa los audios del juego
     BeginAudio() {
-        //Audio
+        //SoundTrack
         this.SoundTrack = this.sound.add("SoundTrack", { loop: true, volume: 0.05 });
+
+        //Shoot
         this.Shoot = this.sound.add("Shoot", { volume: 0.2, rate: 1.5 });
-        //this.Walk = this.sound.add("Walk", { volume: 10, rate: 1 });
+
+        //Pone a sonar el soundtrack
         this.SoundTrack.play();
     }
 

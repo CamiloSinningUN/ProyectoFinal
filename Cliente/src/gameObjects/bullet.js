@@ -1,5 +1,6 @@
 export default class bullet extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, type) {
+        //Incializa la bala
         super(scene, x, y, type);
         scene.add.existing(this);
         scene.physics.world.enable(this);
@@ -8,7 +9,9 @@ export default class bullet extends Phaser.GameObjects.Sprite {
         this.setTexture("Bullet");
         
     }
+    //velocidad de la bala
     velocity = 200;
+    
     Move(avatar){
         switch (avatar.direction) {
             case 0:
