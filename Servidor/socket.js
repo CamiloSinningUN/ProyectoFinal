@@ -23,24 +23,28 @@ var inRoom = 0;
 
 io.on('connection', function (socket) {
   socket.on('newplayer', function () {
+    numPlayers++;
     if (inRoom < 2) {
-      if (inRoom == 0 && numPlayers == 0) {
+      if (inRoom == 0 && numPlayers == 1) {
         inRoom = 1;
         socket.player = {
           id: server.lastPlayderID++,
-          type: 1,
-          x: 50,
-          y: 50
+          type: 1
         };
-      } else if (inRoom == 1 && numPlayers == 1) {
+      } else if (inRoom == 1 && numPlayers == 2) {
         inRoom = 2;
         socket.player = {
           id: server.lastPlayderID++,
           type: 2,
-          x: 50,
-          y: 50
+        };
+      }else if(inRoom == 0 && numPlayers == 2){
+        inRoom = 2;
+        socket.player = {
+          id: server.lastPlayderID++,
+          type: 1
         };
       }
+    
 
       socket.emit('allplayers', getAllPlayers());
       socket.broadcast.emit('newplayer', socket.player);
@@ -54,15 +58,29 @@ io.on('connection', function (socket) {
 
       socket.on('disconnect', function () {
         socket.broadcast.emit('remove');
-        console.log("se salio alguien");
-        // numPlayers--;
-        // inRoom--;
+        console.log("se salio un vato");
+        numPlayers--;
+        let sw = true;
+        queue.forEach(id => {
+          if (socket.id == id) {
+            sw = false;
+          }
+        });
+        if (sw) {
+          console.log("se desconecto un vato tipo "+socket.player.type);
+          if(socket.player.type == 2){
+            inRoom=1;
+          }else if(socket.player.type == 1){
+            inRoom=0;
+          }
+
+        }
       });
 
     } else {
       queue.push(socket.id);
     }
-    numPlayers++;
+    
 
 
     //     socket.on('click', function (data) {
@@ -71,10 +89,7 @@ io.on('connection', function (socket) {
     //       socket.player.y = data.y;
     //       io.emit('move', socket.player);
     //     });
-    //   } else {
-    //     //Lo añado a una cola
-    //     queue.push(numPlayers);
-    //   }
+
     //   socket.on('disconnect', function () {
     //     io.emit('remove', socket.player.id);
     //     numPlayers--;
