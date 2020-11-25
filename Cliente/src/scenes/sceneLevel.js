@@ -456,6 +456,7 @@ export default class sceneLevel extends Phaser.Scene {
     beginClient() {
         socket.emit('newplayer');
         socket.on('newplayer', (data) => {
+            this.text.setText("");
             if (data.type == 1) {
                 this.addNewCactus();
             } else {
@@ -463,18 +464,18 @@ export default class sceneLevel extends Phaser.Scene {
             }
         });
         socket.on('allplayers', (data) => {
-            console.log("entre aca");
             for (var i = 0; i < data.length; i++) {
                 console.log(data[i].type);
                 if (data[i].type == 1) {
                     this.addNewCactus();
-                    if(i == data.length-1){
+                    if (i == data.length - 1) {
                         this.Im = 1;
                     }
                 } else if (data[i].type == 2) {
                     this.addNewPlayer();
-                    if(i == data.length-1){
+                    if (i == data.length - 1) {
                         this.Im = 2;
+                        this.text.setText("");
                     }
                 }
             }
@@ -482,11 +483,13 @@ export default class sceneLevel extends Phaser.Scene {
             //    Game.movePlayer(data.id,data.x,data.y);
             //});
 
-            // socket.on('remove',function(id){
-            //     Game.removePlayer(id);
-            // });
+            socket.on('remove', () =>{
+                this.text.setText("Waiting for more players");
+                this.removePlayer();
+            });
         });
     }
+
 
     addNewPlayer() {
         this.player = new avatar(this, 600, 350, "player");
@@ -495,6 +498,8 @@ export default class sceneLevel extends Phaser.Scene {
         this.player.anims.play("playerFrontAnimIdle");
         this.physics.add.collider(this.layer, this.player.foots);
     }
+
+
     addNewCactus() {
         this.cactus = new avatar(this, 50, 50, "cactus");
         this.cactus.body.setSize(this.cactus.width * 0.4, this.cactus.height * 0.7);
@@ -503,8 +508,20 @@ export default class sceneLevel extends Phaser.Scene {
         this.physics.add.collider(this.layer, this.cactus.foots);
     }
 
+    
     sendMove() {
         socket.emit('click', { x: x, y: y });
+    }
+
+
+    removePlayer() {
+        if (this.Im == 1) {
+            this.player.destroy();
+            this.player.foots.destroy();
+        } else if (this.Im == 2) {
+            this.cactus.destroy();
+            this.cactus.foots.destroy();
+        }
     }
 
 

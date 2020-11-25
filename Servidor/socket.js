@@ -23,7 +23,7 @@ var inRoom = 0;
 
 io.on('connection', function (socket) {
   socket.on('newplayer', function () {
-    if(inRoom<2){
+    if (inRoom < 2) {
       if (inRoom == 0 && numPlayers == 0) {
         inRoom = 1;
         socket.player = {
@@ -45,34 +45,25 @@ io.on('connection', function (socket) {
       socket.emit('allplayers', getAllPlayers());
       socket.broadcast.emit('newplayer', socket.player);
 
+      // socket.on('move', function (data) {
+      //   console.log('click to ' + data.x + ', ' + data.y);
+      //   socket.player.x = data.x;
+      //   socket.player.y = data.y;
+      //   io.emit('move', socket.player);
+      // });
 
-    }else{
+      socket.on('disconnect', function () {
+        socket.broadcast.emit('remove');
+        console.log("se salio alguien");
+        // numPlayers--;
+        // inRoom--;
+      });
+
+    } else {
       queue.push(socket.id);
     }
     numPlayers++;
- 
-    //   if (numPlayers > 2) {
 
-    //     inRoom++;
-
-    //     if (inRoom == 1) {
-    //       socket.player = {
-    //         id: server.lastPlayderID++,
-    //         type: 2,
-    //         x: 600,
-    //         y: 350
-    //       };
-    //     } else if (inRoom == 2) {
-    //       socket.player = {
-    //         id: server.lastPlayderID++,
-    //         type: 1,
-    //         x: 50,
-    //         y: 50
-    //       };
-    //     }
-
-    //     socket.emit('allplayers', getAllPlayers());
-    //     socket.broadcast.emit('newplayer', socket.player);
 
     //     socket.on('click', function (data) {
     //       console.log('click to ' + data.x + ', ' + data.y);
