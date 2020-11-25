@@ -10,7 +10,9 @@ export default class avatar extends Phaser.GameObjects.Sprite {
         //Incializa pies de avatar
         this.foots = scene.add.rectangle(x, y + this.body.halfHeight, 15, 8, 0xff0000, 0);
         scene.physics.world.enable(this.foots);  
-              
+        // this.socket.on("move",()=>{
+
+        // });            
     }
     //En que dirección esta mirando el avatar
     direction;
@@ -80,6 +82,7 @@ export default class avatar extends Phaser.GameObjects.Sprite {
     }
 
     Shoot(name) {
+        socket.emit("shoot");
         switch (this.direction) {
             case 0:
                 this.anims.play(name + "BackAnimShoot", true);

@@ -1,5 +1,5 @@
 import avatar from "../gameObjects/avatar.js";
-import bullet from "../gameObjects/bullet.js"
+import bullet from "../gameObjects/bullet.js";
 const players = {};
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
@@ -7,14 +7,15 @@ export default class sceneLevel extends Phaser.Scene {
     }
 
     //De prueba
-    Im = 2;
+    Im = 0;
 
     //Para retrasar el tiempo entre disparos
     bulletTime = 0;
 
     //Carga en la escena lo requerido
     create() {
-
+        this.beginClient();
+        //this.beginclient();
 
         const self = this;
         this.players = this.physics.add.group();
@@ -23,10 +24,10 @@ export default class sceneLevel extends Phaser.Scene {
         const mapa = this.make.tilemap({ key: 'mapa' });
         const atlas = mapa.addTilesetImage('Atlas', "Atlas");
         const npc = mapa.addTilesetImage("NPC's", "NPC");
-        const layer = mapa.createStaticLayer('Pasto', atlas, 0, 0);
+        this.layer = mapa.createStaticLayer('Pasto', atlas, 0, 0);
         const array = [atlas, npc];
         const layer1 = mapa.createStaticLayer('Cosas del pueblo', array, 0, 0);
-        layer.setCollisionByProperty({ solido: true });
+        this.layer.setCollisionByProperty({ solido: true });
 
         //Textos y contadores
         this.AddText("Waiting for more players");
@@ -41,28 +42,29 @@ export default class sceneLevel extends Phaser.Scene {
         this.BeginAnim();
         this.BeginAudio();
 
-        //Inicializa y configura los avatares
-        this.player = new avatar(this, 600, 350, "player");
-        this.cactus = new avatar(this, 50, 50, "cactus");
+        // //Inicializa y configura los avatares
+        // this.player = new avatar(this, 600, 350, "player");
+        // this.cactus = new avatar(this, 50, 50, "cactus");
 
-        this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
-        this.player.body.setOffset(15, 15);
+        // this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
+        // this.player.body.setOffset(15, 15);
 
-        this.cactus.body.setSize(this.cactus.width * 0.4, this.cactus.height * 0.7);
-        this.cactus.body.setOffset(14, 15);
+        // this.cactus.body.setSize(this.cactus.width * 0.4, this.cactus.height * 0.7);
+        // this.cactus.body.setOffset(14, 15);
 
-        this.player.anims.play("playerFrontAnimIdle");
-        this.cactus.anims.play("cactusFrontAnimIdle");
+        // this.player.anims.play("playerFrontAnimIdle");
+        // this.cactus.anims.play("cactusFrontAnimIdle");
 
-        //Asigna las fisicas con el mapa
-        this.physics.add.collider(layer, this.player.foots);
-        this.physics.add.collider(layer, this.cactus.foots);
+        // //Asigna las fisicas con el mapa
+        // this.physics.add.collider(layer, this.player.foots);
+        // this.physics.add.collider(layer, this.cactus.foots);
 
         //Crea variables para los botones a usar
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     }
+
 
     //Muestra en pantalla el tiempo restante para disparar
     cooldown() {
@@ -110,18 +112,19 @@ export default class sceneLevel extends Phaser.Scene {
         //Muestra el tiempo restante para disparar
         this.cooldown();
 
-        //Pone la velocidad de cactus en cero
-        this.cactus.body.setVelocity(0, 0);
-        this.cactus.foots.body.setVelocity(0, 0);
+        if (this.Im == 1) {
+            //Pone la velocidad de cactus en cero
+            this.cactus.body.setVelocity(0, 0);
+            this.cactus.foots.body.setVelocity(0, 0);
 
-        //cactus
-        if (!this.cactus.Alive) {
-            this.cactus.Dead(this, "cactus", 33);
-            this.cactus.Alive = true;
-            this.scene.start("sceneWin");
-            this.SoundTrack.stop();
-        } else {
-            if (this.Im == 1) {
+            //cactus
+            if (!this.cactus.Alive) {
+                this.cactus.Dead(this, "cactus", 33);
+                this.cactus.Alive = true;
+                this.scene.start("sceneWin");
+                this.SoundTrack.stop();
+            } else {
+
                 if (this.shoot.isUp) {
                     //Idle
                     this.cactus.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
@@ -138,20 +141,22 @@ export default class sceneLevel extends Phaser.Scene {
                     }
 
                 }
+
             }
         }
 
-        //Pone la velocidad del vaquero en cero
-        this.player.foots.body.setVelocity(0, 0);
-        this.player.body.setVelocity(0, 0);
-        //vaquero
-        if (!this.player.Alive) {
-            this.player.Dead(this, "player", 42);
-            this.player.Alive = true;
-            this.scene.start("sceneWin");
-            this.SoundTrack.stop();
-        } else {
-            if (this.Im == 2) {
+        if (this.Im == 2) {
+            //Pone la velocidad del vaquero en cero
+            this.player.foots.body.setVelocity(0, 0);
+            this.player.body.setVelocity(0, 0);
+            //vaquero
+            if (!this.player.Alive) {
+                this.player.Dead(this, "player", 42);
+                this.player.Alive = true;
+                this.scene.start("sceneWin");
+                this.SoundTrack.stop();
+            } else {
+
                 if (this.shoot.isUp) {
                     //Idle
                     this.player.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
@@ -167,9 +172,11 @@ export default class sceneLevel extends Phaser.Scene {
                         }
                     }
                 }
-            }
 
+
+            }
         }
+
     }
 
     //Añade un texto determinado en la posicion 100,100
@@ -446,8 +453,96 @@ export default class sceneLevel extends Phaser.Scene {
     }
 
 
+    beginClient() {
+        socket.emit('newplayer');
+        socket.on('newplayer', (data) => {
+            if (data.type == 1) {
+                this.addNewCactus();
+            } else {
+                this.addNewPlayer();
+            }
+        });
+        socket.on('allplayers', (data) => {
+            console.log("entre aca");
+            for (var i = 0; i < data.length; i++) {
+                console.log(data[i].type);
+                if (data[i].type == 1) {
+                    this.addNewCactus();
+                    if(i == data.length-1){
+                        this.Im = 1;
+                    }
+                } else if (data[i].type == 2) {
+                    this.addNewPlayer();
+                    if(i == data.length-1){
+                        this.Im = 2;
+                    }
+                }
+            }
+            //socket.on('move',function(data){
+            //    Game.movePlayer(data.id,data.x,data.y);
+            //});
+
+            // socket.on('remove',function(id){
+            //     Game.removePlayer(id);
+            // });
+        });
+    }
+
+    addNewPlayer() {
+        this.player = new avatar(this, 600, 350, "player");
+        this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
+        this.player.body.setOffset(15, 15);
+        this.player.anims.play("playerFrontAnimIdle");
+        this.physics.add.collider(this.layer, this.player.foots);
+    }
+    addNewCactus() {
+        this.cactus = new avatar(this, 50, 50, "cactus");
+        this.cactus.body.setSize(this.cactus.width * 0.4, this.cactus.height * 0.7);
+        this.cactus.body.setOffset(14, 15);
+        this.cactus.anims.play("cactusFrontAnimIdle");
+        this.physics.add.collider(this.layer, this.cactus.foots);
+    }
+
+    sendMove() {
+        socket.emit('click', { x: x, y: y });
+    }
+
+
+
 
 }
+
+
+// var Client = {};
+// Client.socket = io.connect();
+
+
+// Client.askNewPlayer = function(){
+//     Client.socket.emit('newplayer');
+// };
+
+// Client.sendClick = function(x,y){
+//   Client.socket.emit('click',{x:x,y:y});
+// };
+
+// Client.socket.on('newplayer', function (data) {
+//     Game.addNewPlayer(data.id, data.x, data.y);
+// });
+
+// Client.socket.on('allplayers',function(data){
+//     for(var i = 0; i < data.length; i++){
+//         Game.addNewPlayer(data[i].id,data[i].x,data[i].y);
+//     }
+
+//     Client.socket.on('move',function(data){
+//         Game.movePlayer(data.id,data.x,data.y);
+//     });
+
+//     Client.socket.on('remove',function(id){
+//         Game.removePlayer(id);
+//     });
+// });
+
 
 
 

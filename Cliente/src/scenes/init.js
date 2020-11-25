@@ -11,7 +11,8 @@ const config = {
     physics: {
         default: "arcade",
         arcade:{
-            gravity: 0
+            gravity: 0,
+            debug:true
         }
     },
     scene:[
@@ -21,4 +22,6 @@ const config = {
     ]
     
 }
-new Phaser.Game(config);
+var game = new Phaser.Game(config);
+
+
