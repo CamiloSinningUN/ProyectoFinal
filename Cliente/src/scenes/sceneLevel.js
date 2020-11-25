@@ -1,6 +1,5 @@
 import avatar from "../gameObjects/avatar.js";
 import bullet from "../gameObjects/bullet.js";
-const players = {};
 export default class sceneLevel extends Phaser.Scene {
     constructor() {
         super({ key: "sceneLevel" });
@@ -15,10 +14,7 @@ export default class sceneLevel extends Phaser.Scene {
     //Carga en la escena lo requerido
     create() {
         this.beginClient();
-        //this.beginclient();
 
-        const self = this;
-        this.players = this.physics.add.group();
 
         //Creación de mapa
         const mapa = this.make.tilemap({ key: 'mapa' });
@@ -70,7 +66,7 @@ export default class sceneLevel extends Phaser.Scene {
     cooldown() {
         let string;
         if (this.bulletTime > this.time.now) {
-            string = parseInt((this.bulletTime - this.time.now) / 1000);
+            string = parseInt((this.bulletTime - this.time.now)/1000);
 
         } else {
             string = "Shoot!";
@@ -508,7 +504,7 @@ export default class sceneLevel extends Phaser.Scene {
         this.physics.add.collider(this.layer, this.cactus.foots);
     }
 
-    
+
     sendMove() {
         socket.emit('click', { x: x, y: y });
     }
