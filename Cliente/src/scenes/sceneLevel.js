@@ -5,17 +5,16 @@ export default class sceneLevel extends Phaser.Scene {
         super({ key: "sceneLevel" });
     }
 
-    //De prueba
+    //Quien soy
     Im = 0;
 
-    //Para retrasar el tiempo entre disparos
-    bulletTime = 0;
-
+    //La room esta completa
     complete = false;
 
     //Carga en la escena lo requerido
     create() {
 
+        //Iniciar servidor
         this.beginClient();
 
         //Creación de mapa
@@ -31,31 +30,9 @@ export default class sceneLevel extends Phaser.Scene {
         this.AddText("Waiting for more players");
         this.Counter();
 
-        //Servidor
-        socket.on('grupo', () => {
-            this.text.destroy();
-        });
-
         //Carga animaciones y audio en la escena
         this.BeginAnim();
         this.BeginAudio();
-
-        // //Inicializa y configura los avatares
-        // this.player = new avatar(this, 600, 350, "player");
-        // this.cactus = new avatar(this, 50, 50, "cactus");
-
-        // this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
-        // this.player.body.setOffset(15, 15);
-
-        // this.cactus.body.setSize(this.cactus.width * 0.4, this.cactus.height * 0.7);
-        // this.cactus.body.setOffset(14, 15);
-
-        // this.player.anims.play("playerFrontAnimIdle");
-        // this.cactus.anims.play("cactusFrontAnimIdle");
-
-        // //Asigna las fisicas con el mapa
-        // this.physics.add.collider(layer, this.player.foots);
-        // this.physics.add.collider(layer, this.cactus.foots);
 
         //Crea variables para los botones a usar
         this.cursor = this.input.keyboard.createCursorKeys();
@@ -63,17 +40,27 @@ export default class sceneLevel extends Phaser.Scene {
 
     }
 
-
     //Muestra en pantalla el tiempo restante para disparar
     cooldown() {
         let string;
-        if (this.bulletTime > this.time.now) {
-            string = parseInt((this.bulletTime - this.time.now) / 1000);
+        if (this.Im == 1) {
+            if (this.cactus.bulletTime > this.time.now) {
+                string = parseInt((this.cactus.bulletTime - this.time.now) / 1000);
 
-        } else {
-            string = "Shoot!";
+            } else {
+                string = "Shoot!";
+            }
+            this.cooldowntext.setText(string);
+        } else if (this.Im == 2) {
+            if (this.player.bulletTime > this.time.now) {
+                string = parseInt((this.player.bulletTime - this.time.now) / 1000);
+
+            } else {
+                string = "Shoot!";
+            }
+            this.cooldowntext.setText(string);
         }
-        this.cooldowntext.setText(string);
+
     }
 
     //Inicializa el texto donde se mostrara el cooldown
@@ -109,6 +96,8 @@ export default class sceneLevel extends Phaser.Scene {
     update(time, delta) {
         //Muestra el tiempo restante para disparar
         this.cooldown();
+
+        //Pone en 0 la velocidad de los avatares
         if ((this.Im == 1) && (!this.complete)) {
             //Pone la velocidad de cactus en cero
             this.cactus.body.setVelocity(0, 0);
@@ -126,15 +115,15 @@ export default class sceneLevel extends Phaser.Scene {
             this.player.body.setVelocity(0, 0);
         }
 
+        //cactus
         if (this.Im == 1) {
-            //cactus
+
             if (!this.cactus.Alive) {
                 this.cactus.Dead(this, "cactus", 33);
                 this.cactus.Alive = true;
                 this.scene.start("sceneWin");
                 this.SoundTrack.stop();
             } else {
-
                 if (this.shoot.isUp) {
                     let upCactus = false;
                     let rightCactus = false;
@@ -178,11 +167,11 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    if (this.time.now > this.bulletTime) {
+                    if (this.time.now > this.cactus.bulletTime) {
+                        socket.emit('shoot');
                         this.cactus.Shoot("cactus");
                         if (this.cactus.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.cactus);
-                            socket.emit('shoot');
+                            this.pullTheTriger(this.cactus, true);                          
                         }
                     }
                 }
@@ -190,8 +179,8 @@ export default class sceneLevel extends Phaser.Scene {
             }
         }
 
+        //vaquero
         if (this.Im == 2) {
-            //vaquero
             if (!this.player.Alive) {
                 this.player.Dead(this, "player", 42);
                 this.player.Alive = true;
@@ -241,11 +230,11 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    if (this.time.now > this.bulletTime) {
-                        this.cactus.Shoot("cactus");
-                        if (this.cactus.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.cactus);
-                            socket.emit('shoot');
+                    if (this.time.now > this.player.bulletTime) {
+                        socket.emit('shoot');
+                        this.player.Shoot("player");
+                        if (this.player.anims.currentFrame.isLast) {
+                            this.pullTheTriger(this.player, true);            
                         }
                     }
 
@@ -272,15 +261,21 @@ export default class sceneLevel extends Phaser.Scene {
     }
 
     //Se ejecuta cuando un avatar dispara
-    pullTheTriger(name) {
+    pullTheTriger(name, mI) {
+
         this.Shoot.play();
         this.bala = new bullet(this, this.bulletX(name), this.bulletY(name), "bullet");
         this.bala.body.setOffset(0, 200);
         this.bala.Move(name);
         this.physics.add.collider(this.bala, this.player, this.destroyBulletPlayer, null, this);
         this.physics.add.collider(this.bala, this.cactus, this.destroyBulletCactus, null, this);
-        this.bulletTime = this.time.now + 2000;
-
+        if (mI) {
+            if (this.Im == 1) {
+                this.cactus.bulletTime = this.time.now + 2000;
+            } else if (this.Im == 2) {
+                this.player.bulletTime = this.time.now + 2000;
+            }
+        }
     }
 
     //Calcula la posición en x de generación de la bala
@@ -342,7 +337,7 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 33
             }),
             repeat: 1,
-            frameRate: 7
+            frameRate: 4
         });
 
         //playerback
@@ -374,7 +369,7 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 33
             }),
             repeat: 1,
-            frameRate: 7
+            frameRate: 4
         });
         //playerSide
         //playerSideIdle
@@ -406,7 +401,7 @@ export default class sceneLevel extends Phaser.Scene {
                 end: 33
             }),
             repeat: 1,
-            frameRate: 7
+            frameRate: 4
         });
 
         //End
@@ -529,7 +524,7 @@ export default class sceneLevel extends Phaser.Scene {
         this.SoundTrack.play();
     }
 
-
+    //Lo que concierne a el multijugador
     beginClient() {
         socket.emit('newplayer');
         socket.on('newplayer', (data) => {
@@ -574,7 +569,6 @@ export default class sceneLevel extends Phaser.Scene {
                 } else if (vData.x < 0) {
                     left = true;
                 }
-                //console.log("up: " + up + "\n right: " + right + "\n down: " + down + "\n left: " + left);
                 if (this.Im == 1) {
                     this.player.Move(up, right, down, left, "player");
                 } else if (this.Im == 2) {
@@ -597,9 +591,9 @@ export default class sceneLevel extends Phaser.Scene {
             //Disparo
             socket.on('shooting', (pData) => {
                 if (this.Im == 1) {
-                    this.pullTheTriger(this.player);
+                    this.shootPlayer();
                 } else if (this.Im == 2) {
-                    this.pullTheTriger(this.cactus);
+                    this.shootCactus();
                 }
             });
 
@@ -611,7 +605,25 @@ export default class sceneLevel extends Phaser.Scene {
         });
     }
 
+    shootCactus() {
+        this.cactus.Shoot("cactus");
+        if (this.cactus.anims.currentFrame.isLast) {
+            this.pullTheTriger(this.cactus, false);
 
+        }
+    }
+
+    shootPlayer() {
+        this.player.Shoot("player");
+        console.log(this.player.anims.currentFrame)
+        if (this.player.anims.currentFrame.isLast) {
+            console.log("entre al disparo del player remoto");
+            this.pullTheTriger(this.player, false);
+
+        }
+    }
+
+    //Añade un nuevo vaquero a la partida
     addNewPlayer() {
         this.player = new avatar(this, 600, 350, "player");
         this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.75);
@@ -620,7 +632,7 @@ export default class sceneLevel extends Phaser.Scene {
         this.physics.add.collider(this.layer, this.player.foots);
     }
 
-
+    //Añade un nuevo cactus a la partida
     addNewCactus() {
         this.cactus = new avatar(this, 50, 50, "cactus");
         this.cactus.body.setSize(this.cactus.width * 0.4, this.cactus.height * 0.7);
@@ -629,14 +641,7 @@ export default class sceneLevel extends Phaser.Scene {
         this.physics.add.collider(this.layer, this.cactus.foots);
     }
 
-
-    sendMove() {
-        socket.emit('click', { x: x, y: y });
-    }
-
-    sendShoot() {
-        socket.emit('')
-    }
+    //Elimina jugadores que se salieron sin razon
     removePlayer() {
         if (this.Im == 1) {
             this.player.destroy();
@@ -652,36 +657,6 @@ export default class sceneLevel extends Phaser.Scene {
 
 }
 
-
-// var Client = {};
-// Client.socket = io.connect();
-
-
-// Client.askNewPlayer = function(){
-//     Client.socket.emit('newplayer');
-// };
-
-// Client.sendClick = function(x,y){
-//   Client.socket.emit('click',{x:x,y:y});
-// };
-
-// Client.socket.on('newplayer', function (data) {
-//     Game.addNewPlayer(data.id, data.x, data.y);
-// });
-
-// Client.socket.on('allplayers',function(data){
-//     for(var i = 0; i < data.length; i++){
-//         Game.addNewPlayer(data[i].id,data[i].x,data[i].y);
-//     }
-
-//     Client.socket.on('move',function(data){
-//         Game.movePlayer(data.id,data.x,data.y);
-//     });
-
-//     Client.socket.on('remove',function(id){
-//         Game.removePlayer(id);
-//     });
-// });
 
 
 
