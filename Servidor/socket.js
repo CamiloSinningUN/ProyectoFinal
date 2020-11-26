@@ -63,7 +63,7 @@ io.on('connection', function (socket) {
       });
 
       socket.on('shoot', () => {
-        socket.broadcast.emit('shooting')
+        socket.broadcast.emit('shooting', socket.player)
       });
 
       socket.on('disconnect', function () {

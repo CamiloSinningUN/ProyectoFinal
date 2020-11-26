@@ -582,7 +582,7 @@ export default class sceneLevel extends Phaser.Scene {
             });
 
             //Disparo
-            socket.on('shooting', () => {
+            socket.on('shooting', (pData) => {
                 if (this.Im == 1) {
                     if (this.time.now > this.bulletTime) {
                         this.cactus.Shoot("cactus");
