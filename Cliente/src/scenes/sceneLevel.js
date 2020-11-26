@@ -489,7 +489,7 @@ export default class sceneLevel extends Phaser.Scene {
                             }
                         }
                     }
-                } else if (Im == 2) {
+                } else if (this.Im == 2) {
                     if (this.shoot.isDown) {
                         if (this.time.now > this.bulletTime) {
                             this.player.Shoot("player");
