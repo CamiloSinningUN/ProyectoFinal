@@ -178,7 +178,7 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    socket.emit('shooting');
+                    socket.emit('shoot');
                 }
 
             }
@@ -235,7 +235,7 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    socket.emit('shooting');
+                    socket.emit('shoot');
                 }
 
 
