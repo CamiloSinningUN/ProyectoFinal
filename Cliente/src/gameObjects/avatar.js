@@ -9,7 +9,7 @@ export default class avatar extends Phaser.GameObjects.Sprite {
 
         //Incializa pies de avatar
         this.foots = scene.add.rectangle(x, y + this.body.halfHeight, 15, 8, 0xff0000, 0);
-        scene.physics.world.enable(this.foots);  
+        scene.physics.world.enable(this.foots);
         // this.socket.on("move",()=>{
 
         // });            
@@ -27,40 +27,40 @@ export default class avatar extends Phaser.GameObjects.Sprite {
     //Si esta vivo o no
     Alive = true;
 
+
     Move(up, right, down, left, name) {
-        if (right.isDown) {
+        if (right) {
             this.flipX = false;
             this.anims.play(name + "SideAnimMoving", true);
-            //this.x = this.x + 1;
             this.body.setVelocityX(50);
             this.foots.body.setVelocityX(50);
-            this.direction = 1;
+            this.direction = 1;            
         }
-        else if (left.isDown) {
+        else if (left) {
             this.flipX = true;
             this.anims.play(name + "SideAnimMoving", true);
             this.body.setVelocityX(-50);
             this.foots.body.setVelocityX(-50);
             this.direction = 3;
         }
-        else if (up.isDown) {
+        else if (up) {
             this.anims.play(name + "BackAnimMoving", true);
             this.body.setVelocityY(-50);
             this.foots.body.setVelocityY(-50);
             this.direction = 0;
         }
-        else if (down.isDown) {
+        else if (down) {
             this.anims.play(name + "FrontAnimMoving", true);
             this.body.setVelocityY(50);
             this.foots.body.setVelocityY(50);
             this.direction = 2;
         }
         this.x = this.foots.x;
-        this.y  = this.foots.y - this.body.halfHeight;
+        this.y = this.foots.y - this.body.halfHeight;
     }
 
     Idle(up, right, down, left, name) {
-        if (right.isUp && left.isUp && up.isUp && down.isUp) {
+        if (!right && !left && !up && !down) {
             switch (this.direction) {
                 case 0:
                     this.anims.play(name + "BackAnimIdle", true);
@@ -77,7 +77,7 @@ export default class avatar extends Phaser.GameObjects.Sprite {
                     this.anims.play(name + "SideAnimIdle", true);
                     break;
 
-            }
+            }         
         }
     }
 

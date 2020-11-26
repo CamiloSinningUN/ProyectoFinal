@@ -11,10 +11,12 @@ export default class sceneLevel extends Phaser.Scene {
     //Para retrasar el tiempo entre disparos
     bulletTime = 0;
 
+    complete = false;
+
     //Carga en la escena lo requerido
     create() {
-        this.beginClient();
 
+        this.beginClient();
 
         //Creación de mapa
         const mapa = this.make.tilemap({ key: 'mapa' });
@@ -66,7 +68,7 @@ export default class sceneLevel extends Phaser.Scene {
     cooldown() {
         let string;
         if (this.bulletTime > this.time.now) {
-            string = parseInt((this.bulletTime - this.time.now)/1000);
+            string = parseInt((this.bulletTime - this.time.now) / 1000);
 
         } else {
             string = "Shoot!";
@@ -107,12 +109,24 @@ export default class sceneLevel extends Phaser.Scene {
     update(time, delta) {
         //Muestra el tiempo restante para disparar
         this.cooldown();
-
-        if (this.Im == 1) {
+        if ((this.Im == 1) && (!this.complete)) {
             //Pone la velocidad de cactus en cero
             this.cactus.body.setVelocity(0, 0);
             this.cactus.foots.body.setVelocity(0, 0);
+        } else if ((this.Im == 2) && (!this.complete)) {
+            //Pone la velocidad del vaquero en cero
+            this.player.foots.body.setVelocity(0, 0);
+            this.player.body.setVelocity(0, 0);
+        } else if (this.complete) {
+            //Pone la velocidad de cactus en cero
+            this.cactus.body.setVelocity(0, 0);
+            this.cactus.foots.body.setVelocity(0, 0);
+            //Pone la velocidad del vaquero en cero
+            this.player.foots.body.setVelocity(0, 0);
+            this.player.body.setVelocity(0, 0);
+        }
 
+        if (this.Im == 1) {
             //cactus
             if (!this.cactus.Alive) {
                 this.cactus.Dead(this, "cactus", 33);
@@ -122,10 +136,45 @@ export default class sceneLevel extends Phaser.Scene {
             } else {
 
                 if (this.shoot.isUp) {
-                    //Idle
-                    this.cactus.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
-                    //Moving  
-                    this.cactus.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "cactus");
+                    let upCactus = false;
+                    let rightCactus = false;
+                    let downCactus = false;
+                    let leftCactus = false;
+                    if (this.cursor.up.isDown) {
+                        upCactus = true;
+                        socket.player = {
+                            x: 0,
+                            y: -50
+                        };
+                    } else if (this.cursor.right.isDown) {
+                        rightCactus = true;
+                        socket.player = {
+                            x: 50,
+                            y: 0
+                        };
+                    } else if (this.cursor.down.isDown) {
+                        downCactus = true;
+                        socket.player = {
+                            x: 0,
+                            y: 50
+                        };
+                    } else if (this.cursor.left.isDown) {
+                        leftCactus = true;
+                        socket.player = {
+                            x: -50,
+                            y: 0
+                        };
+                    }
+                    if (upCactus || rightCactus || downCactus || leftCactus) {
+                        //Moving  
+                        this.cactus.Move(upCactus, rightCactus, downCactus, leftCactus, "cactus");
+                        socket.emit('move', socket.player);
+                    } else {
+                        //Idle
+                        this.cactus.Idle(upCactus, rightCactus, downCactus, leftCactus, "cactus");
+                        socket.emit('idle');
+                    }
+
                 }
                 //Shoot
                 if (this.shoot.isDown) {
@@ -142,9 +191,6 @@ export default class sceneLevel extends Phaser.Scene {
         }
 
         if (this.Im == 2) {
-            //Pone la velocidad del vaquero en cero
-            this.player.foots.body.setVelocity(0, 0);
-            this.player.body.setVelocity(0, 0);
             //vaquero
             if (!this.player.Alive) {
                 this.player.Dead(this, "player", 42);
@@ -152,12 +198,46 @@ export default class sceneLevel extends Phaser.Scene {
                 this.scene.start("sceneWin");
                 this.SoundTrack.stop();
             } else {
-
                 if (this.shoot.isUp) {
-                    //Idle
-                    this.player.Idle(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
-                    //Moving  
-                    this.player.Move(this.cursor.up, this.cursor.right, this.cursor.down, this.cursor.left, "player");
+                    let upPlayer = false;
+                    let rightPlayer = false;
+                    let downPlayer = false;
+                    let leftPlayer = false;
+                    if (this.cursor.up.isDown) {
+                        upPlayer = true;
+                        socket.player = {
+                            x: 0,
+                            y: -50
+                        };
+                    } else if (this.cursor.right.isDown) {
+                        rightPlayer = true;
+                        socket.player = {
+                            x: 50,
+                            y: 0
+                        };
+                    } else if (this.cursor.down.isDown) {
+                        downPlayer = true;
+                        socket.player = {
+                            x: 0,
+                            y: 50
+                        };
+                    } else if (this.cursor.left.isDown) {
+                        leftPlayer = true;
+                        socket.player = {
+                            x: -50,
+                            y: 0
+                        };
+                    }
+                    if (upPlayer || rightPlayer || downPlayer || leftPlayer) {
+                        //Moving  
+                        this.player.Move(upPlayer, rightPlayer, downPlayer, leftPlayer, "player");
+                        socket.emit('move', socket.player);
+                    } else {
+                        //Idle
+                        this.player.Idle(upPlayer, rightPlayer, downPlayer, leftPlayer, "player");
+                        socket.emit('idle');
+                    }
+
                 }
                 //Shoot
                 if (this.shoot.isDown) {
@@ -453,19 +533,20 @@ export default class sceneLevel extends Phaser.Scene {
         socket.emit('newplayer');
         socket.on('newplayer', (data) => {
             this.text.setText("");
+            this.complete = true;
             if (data.type == 1) {
                 this.addNewCactus();
             } else {
                 this.addNewPlayer();
-            }
+            } 
         });
         socket.on('allplayers', (data) => {
             for (var i = 0; i < data.length; i++) {
-                console.log(data[i].type);
                 if (data[i].type == 1) {
                     this.addNewCactus();
                     if (i == data.length - 1) {
                         this.Im = 1;
+                        this.text.setText("");
                     }
                 } else if (data[i].type == 2) {
                     this.addNewPlayer();
@@ -474,12 +555,45 @@ export default class sceneLevel extends Phaser.Scene {
                         this.text.setText("");
                     }
                 }
+                if(i == 1){
+                    this.complete = true;
+                }
             }
-            //socket.on('move',function(data){
-            //    Game.movePlayer(data.id,data.x,data.y);
-            //});
+            socket.on('moving', (vData) => {
+                let up = false;
+                let right = false;
+                let down = false;
+                let left = false;
+                if (vData.y < 0) {
+                    up = true;
+                } else if (vData.x > 0) {
+                    right = true;
+                } else if (vData.y > 0) {
+                    down = true;
+                } else if (vData.x < 0) {
+                    left = true;
+                }
+                //console.log("up: " + up + "\n right: " + right + "\n down: " + down + "\n left: " + left);
+                if (this.Im == 1) {
+                    this.player.Move(up, right, down, left, "player");
+                } else if (this.Im == 2) {
+                    this.cactus.Move(up, right, down, left, "cactus");
+                }
 
-            socket.on('remove', () =>{
+            });
+            socket.on('idling', () => {
+                if (this.Im == 1) {
+                    this.player.body.setVelocity(0, 0);
+                    this.player.foots.body.setVelocity(0, 0);
+                    this.player.Idle(false, false, false, false, "player");
+                } else if (this.Im == 2) {
+                    this.cactus.body.setVelocity(0, 0);
+                    this.cactus.foots.body.setVelocity(0, 0);
+                    this.cactus.Idle(false, false, false, false, "cactus");
+                }
+            });
+
+            socket.on('remove', () => {
                 this.text.setText("Waiting for more players");
                 this.removePlayer();
             });
