@@ -66,7 +66,7 @@ export default class sceneLevel extends Phaser.Scene {
     cooldown() {
         let string;
         if (this.bulletTime > this.time.now) {
-            string = parseInt((this.bulletTime - this.time.now)/1000);
+            string = parseInt((this.bulletTime - this.time.now) / 1000);
 
         } else {
             string = "Shoot!";
@@ -191,7 +191,6 @@ export default class sceneLevel extends Phaser.Scene {
 
     //Se ejecuta cuando un avatar dispara
     pullTheTriger(name) {
-        socket.emit("shoot");
         this.Shoot.play();
         this.bala = new bullet(this, this.bulletX(name), this.bulletY(name), "bullet");
         this.bala.body.setOffset(0, 200);
@@ -479,7 +478,30 @@ export default class sceneLevel extends Phaser.Scene {
             //    Game.movePlayer(data.id,data.x,data.y);
             //});
 
-            socket.on('remove', () =>{
+            //Disparo
+            socket.on('shooting', () => {
+                if (this.Im == 1) {
+                    if (this.shoot.isDown) {
+                        if (this.time.now > this.bulletTime) {
+                            this.cactus.Shoot("cactus");
+                            if (this.cactus.anims.currentFrame.isLast) {
+                                this.pullTheTriger(this.cactus);
+                            }
+                        }
+                    }
+                } else if (Im == 2) {
+                    if (this.shoot.isDown) {
+                        if (this.time.now > this.bulletTime) {
+                            this.player.Shoot("player");
+                            if (this.player.anims.currentFrame.isLast) {
+                                this.pullTheTriger(this.player);
+                            }
+                        }
+                    }
+                }
+            });
+
+            socket.on('remove', () => {
                 this.text.setText("Waiting for more players");
                 this.removePlayer();
             });
@@ -509,7 +531,9 @@ export default class sceneLevel extends Phaser.Scene {
         socket.emit('click', { x: x, y: y });
     }
 
-
+    sendShoot() {
+        socket.emit('')
+    }
     removePlayer() {
         if (this.Im == 1) {
             this.player.destroy();
