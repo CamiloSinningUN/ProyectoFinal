@@ -178,13 +178,7 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    if (this.time.now > this.bulletTime) {
-                        this.cactus.Shoot("cactus");
-                        if (this.cactus.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.cactus);
-                        }
-                    }
-
+                    socket.emit('shooting');
                 }
 
             }
@@ -241,12 +235,7 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    if (this.time.now > this.bulletTime) {
-                        this.player.Shoot("player");
-                        if (this.player.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.player);
-                        }
-                    }
+                    socket.emit('shooting');
                 }
 
 
@@ -537,7 +526,7 @@ export default class sceneLevel extends Phaser.Scene {
                 this.addNewCactus();
             } else {
                 this.addNewPlayer();
-            } 
+            }
         });
         socket.on('allplayers', (data) => {
             for (var i = 0; i < data.length; i++) {
@@ -554,7 +543,7 @@ export default class sceneLevel extends Phaser.Scene {
                         this.text.setText("");
                     }
                 }
-                if(i == 1){
+                if (i == 1) {
                     this.complete = true;
                 }
             }
@@ -595,22 +584,19 @@ export default class sceneLevel extends Phaser.Scene {
             //Disparo
             socket.on('shooting', () => {
                 if (this.Im == 1) {
-                    if (this.shoot.isDown) {
-                        if (this.time.now > this.bulletTime) {
-                            this.cactus.Shoot("cactus");
-                            if (this.cactus.anims.currentFrame.isLast) {
-                                this.pullTheTriger(this.cactus);
-                            }
+                    if (this.time.now > this.bulletTime) {
+                        this.cactus.Shoot("cactus");
+                        if (this.cactus.anims.currentFrame.isLast) {
+                            this.pullTheTriger(this.cactus);
                         }
                     }
                 } else if (this.Im == 2) {
-                    if (this.shoot.isDown) {
-                        if (this.time.now > this.bulletTime) {
-                            this.player.Shoot("player");
-                            if (this.player.anims.currentFrame.isLast) {
-                                this.pullTheTriger(this.player);
-                            }
+                    if (this.time.now > this.bulletTime) {
+                        this.player.Shoot("player");
+                        if (this.player.anims.currentFrame.isLast) {
+                            this.pullTheTriger(this.player);
                         }
+
                     }
                 }
             });

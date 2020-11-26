@@ -58,8 +58,12 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('moving', socket.player);
       });
 
-      socket.on('idle',()=>{
+      socket.on('idle', () => {
         socket.broadcast.emit('idling');
+      });
+
+      socket.on('shoot', () => {
+        socket.broadcast.emit('shooting')
       });
 
       socket.on('disconnect', function () {
