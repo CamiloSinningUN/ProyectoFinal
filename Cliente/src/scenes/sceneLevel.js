@@ -271,7 +271,6 @@ export default class sceneLevel extends Phaser.Scene {
 
     //Se ejecuta cuando un avatar dispara
     pullTheTriger(name) {
-        socket.emit("shoot");
         this.Shoot.play();
         this.bala = new bullet(this, this.bulletX(name), this.bulletY(name), "bullet");
         this.bala.body.setOffset(0, 200);
@@ -593,6 +592,30 @@ export default class sceneLevel extends Phaser.Scene {
                 }
             });
 
+            //Disparo
+            socket.on('shooting', () => {
+                if (this.Im == 1) {
+                    if (this.shoot.isDown) {
+                        if (this.time.now > this.bulletTime) {
+                            this.cactus.Shoot("cactus");
+                            if (this.cactus.anims.currentFrame.isLast) {
+                                this.pullTheTriger(this.cactus);
+                            }
+                        }
+                    }
+                } else if (this.Im == 2) {
+                    if (this.shoot.isDown) {
+                        if (this.time.now > this.bulletTime) {
+                            this.player.Shoot("player");
+                            if (this.player.anims.currentFrame.isLast) {
+                                this.pullTheTriger(this.player);
+                            }
+                        }
+                    }
+                }
+            });
+
+
             socket.on('remove', () => {
                 this.text.setText("Waiting for more players");
                 this.removePlayer();
@@ -623,7 +646,9 @@ export default class sceneLevel extends Phaser.Scene {
         socket.emit('click', { x: x, y: y });
     }
 
-
+    sendShoot() {
+        socket.emit('')
+    }
     removePlayer() {
         if (this.Im == 1) {
             this.player.destroy();
