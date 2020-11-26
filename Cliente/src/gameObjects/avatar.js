@@ -82,7 +82,6 @@ export default class avatar extends Phaser.GameObjects.Sprite {
     }
 
     Shoot(name) {
-        socket.emit("shoot");
         switch (this.direction) {
             case 0:
                 this.anims.play(name + "BackAnimShoot", true);

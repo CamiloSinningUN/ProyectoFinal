@@ -178,7 +178,13 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    socket.emit('shoot');
+                    if (this.time.now > this.bulletTime) {
+                        this.cactus.Shoot("cactus");
+                        if (this.cactus.anims.currentFrame.isLast) {
+                            this.pullTheTriger(this.cactus);
+                            socket.emit('shoot');
+                        }
+                    }
                 }
 
             }
@@ -235,7 +241,14 @@ export default class sceneLevel extends Phaser.Scene {
                 }
                 //Shoot
                 if (this.shoot.isDown) {
-                    socket.emit('shoot');
+                    if (this.time.now > this.bulletTime) {
+                        this.cactus.Shoot("cactus");
+                        if (this.cactus.anims.currentFrame.isLast) {
+                            this.pullTheTriger(this.cactus);
+                            socket.emit('shoot');
+                        }
+                    }
+
                 }
 
 
@@ -584,20 +597,9 @@ export default class sceneLevel extends Phaser.Scene {
             //Disparo
             socket.on('shooting', (pData) => {
                 if (this.Im == 1) {
-                    if (this.time.now > this.bulletTime) {
-                        this.cactus.Shoot("cactus");
-                        if (this.cactus.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.cactus);
-                        }
-                    }
+                    this.pullTheTriger(this.player);
                 } else if (this.Im == 2) {
-                    if (this.time.now > this.bulletTime) {
-                        this.player.Shoot("player");
-                        if (this.player.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.player);
-                        }
-
-                    }
+                    this.pullTheTriger(this.cactus);
                 }
             });
 
