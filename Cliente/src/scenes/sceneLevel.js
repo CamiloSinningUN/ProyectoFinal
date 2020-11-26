@@ -584,14 +584,14 @@ export default class sceneLevel extends Phaser.Scene {
             //Disparo
             socket.on('shooting', (pData) => {
                 if (this.Im == 1) {
-                    if (this.time.now > this.bulletTime) {
+                    if (this.time.now > this.player.bulletTime) {
                         this.cactus.Shoot("cactus");
                         if (this.cactus.anims.currentFrame.isLast) {
                             this.pullTheTriger(this.cactus);
                         }
                     }
                 } else if (this.Im == 2) {
-                    if (this.time.now > this.bulletTime) {
+                    if (this.time.now > this.player.bulletTime) {
                         this.player.Shoot("player");
                         if (this.player.anims.currentFrame.isLast) {
                             this.pullTheTriger(this.player);

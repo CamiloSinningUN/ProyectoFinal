@@ -26,7 +26,7 @@ export default class avatar extends Phaser.GameObjects.Sprite {
 
     //Si esta vivo o no
     Alive = true;
-
+    bulletTime = 500;
 
     Move(up, right, down, left, name) {
         if (right) {
