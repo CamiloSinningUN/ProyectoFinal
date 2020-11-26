@@ -1,8 +1,8 @@
 
 var express = require('express');
 var app = express();
-var server = require('http').Server(app);
-var io = require('socket.io').listen(server);
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
 
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/js', express.static(__dirname + '/js'));
@@ -22,87 +22,96 @@ var numPlayers = 0;
 var queue = [];
 var inRoom = 0;
 
-io.on('connection', function (socket) {
-  socket.on('newplayer', function () {
+io.on('connection', (socket) => {
+  socket.on('newplayer', () => {
     numPlayers++;
+    queue.push(socket);
     if (inRoom < 2) {
-      if (inRoom == 0 && numPlayers == 1) {
-        inRoom = 1;
-        socket.player = {
-          id: server.lastPlayderID++,
-          type: 1
-        };
-      } else if (inRoom == 1 && numPlayers == 2) {
-        inRoom = 2;
-        socket.player = {
-          id: server.lastPlayderID++,
-          type: 2,
-        };
-      } else if (inRoom == 0 && numPlayers == 2) {
-        inRoom = 2;
-        socket.player = {
-          id: server.lastPlayderID++,
-          type: 1
-        };
-      }
-
-
-      socket.emit('allplayers', getAllPlayers());
-      socket.broadcast.emit('newplayer', socket.player);
-
-      socket.on('move', function (data) {
-        socket.player = {
-          type: data.type,
-          x: data.x,
-          y: data.y
-        };
-        socket.broadcast.emit('moving', socket.player);
-      });
-
-      socket.on('compensator', function(data) {
-        //console.log("jugador: "+data.type+" esta en x: "+data.x);
-        socket.broadcast.emit('compensation',data);
-      });
-
-      socket.on('idle', () => {
-        socket.broadcast.emit('idling');
-      });
-
-      socket.on('shoot', () => {
-        socket.broadcast.emit('shooting', socket.player)
-      });
-
-      socket.on('disconnect', function () {
-        socket.broadcast.emit('remove');
-        console.log("se salio un vato");
-        numPlayers--;
-        let sw = true;
-        queue.forEach(id => {
-          if (socket.id == id) {
-            sw = false;
-          }
-        });
-        if (sw) {
-          console.log("se desconecto un vato tipo " + socket.player.type);
-          if (socket.player.type == 2) {
-            inRoom = 1;
-          } else if (socket.player.type == 1) {
-            inRoom = 0;
-          }
-
-        }
-      });
-
-    } else {
-      queue.push(socket.id);
+      let first = queue.shift();
+      Client(first);
     }
-
-
-
-
-
   });
 });
+
+function Client(socket) {
+  //Asigna tipo
+  if (inRoom == 0 && numPlayers == 1) {
+    inRoom = 1;
+    socket.player = {
+      type: 1
+    };
+  } else if (inRoom == 1 && numPlayers == 2) {
+    inRoom = 2;
+    socket.player = {
+      type: 2,
+    };
+  } else if (inRoom == 0 && numPlayers == 2) {
+    inRoom = 2;
+    socket.player = {
+      type: 1
+    };
+  }
+
+  //Muestra los juagdores que ya estan en la partida y agrega a tu personaje a la partida de los demas
+  socket.emit('allplayers', getAllPlayers());
+  socket.broadcast.emit('newplayer', socket.player);
+
+  //Para movimiento
+  socket.on('move', function (data) {
+    socket.player = {
+      type: data.type,
+      x: data.x,
+      y: data.y
+    };
+    socket.broadcast.emit('moving', socket.player);
+  });
+
+  //Para movimiento
+  socket.on('compensator', function (data) {
+    socket.broadcast.emit('compensation', data);
+  });
+
+  //Cuando esat quieto
+  socket.on('idle', () => {
+    socket.broadcast.emit('idling');
+  });
+
+  //Disparo
+  socket.on('shoot', () => {
+    socket.broadcast.emit('shooting', socket.player)
+  });
+
+  //Se desconecta
+  socket.on('disconnect', function () {
+    socket.broadcast.emit('remove');
+    numPlayers--;
+
+    let sw = true;
+    queue.forEach(id => {
+      if (socket.id == id) {
+        sw = false;
+      }
+    });
+
+    if (sw) {
+      if (socket.player.type == 2) {
+        inRoom = 1;
+        if(queue.length > 0){
+          Client(queue.shift());
+        }
+      } else if (socket.player.type == 1) {
+        inRoom = 0;
+        if(queue.length > 0){
+          Client(queue.shift());
+        }
+      }
+    }else{
+      queue.splice(queue.indexOf(socket),1);
+    }
+  });
+
+}
+
 
 function getAllPlayers() {
   var players = [];

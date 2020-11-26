@@ -86,6 +86,7 @@ export default class sceneLevel extends Phaser.Scene {
     destroyBulletPlayer() {
         this.bala.destroy();
         this.player.Alive = false;
+        //socket.close();
 
     }
 
@@ -93,6 +94,7 @@ export default class sceneLevel extends Phaser.Scene {
     destroyBulletCactus() {
         this.bala.destroy();
         this.cactus.Alive = false;
+        //socket.close();
     }
 
     //Se ejecuta todo el tiempo esta función
@@ -138,15 +140,26 @@ export default class sceneLevel extends Phaser.Scene {
             this.player.body.setVelocity(0, 0);
         }
 
-        //cactus
-        if (this.Im == 1) {
-
+        //Matar los avatares
+        if (this.complete) {
             if (!this.cactus.Alive) {
                 this.cactus.Dead(this, "cactus", 33);
                 this.cactus.Alive = true;
                 this.scene.start("sceneWin");
                 this.SoundTrack.stop();
-            } else {
+            }
+            if (!this.player.Alive) {
+                this.player.Dead(this, "player", 42);
+                this.player.Alive = true;
+                this.scene.start("sceneWin");
+                this.SoundTrack.stop();
+            }
+        }
+
+        //cactus
+        if (this.Im == 1) {
+
+            if(this.cactus.Alive) {
                 if (this.shoot.isUp) {
                     let upCactus = false;
                     let rightCactus = false;
@@ -208,12 +221,7 @@ export default class sceneLevel extends Phaser.Scene {
 
         //vaquero
         if (this.Im == 2) {
-            if (!this.player.Alive) {
-                this.player.Dead(this, "player", 42);
-                this.player.Alive = true;
-                this.scene.start("sceneWin");
-                this.SoundTrack.stop();
-            } else {
+            if (this.player.Alive) {
                 if (this.shoot.isUp) {
                     let upPlayer = false;
                     let rightPlayer = false;
