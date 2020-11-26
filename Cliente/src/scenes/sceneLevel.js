@@ -132,24 +132,28 @@ export default class sceneLevel extends Phaser.Scene {
                     if (this.cursor.up.isDown) {
                         upCactus = true;
                         socket.player = {
+                            type: 1,
                             x: 0,
                             y: -50
                         };
                     } else if (this.cursor.right.isDown) {
                         rightCactus = true;
                         socket.player = {
+                            type: 1,
                             x: 50,
                             y: 0
                         };
                     } else if (this.cursor.down.isDown) {
                         downCactus = true;
                         socket.player = {
+                            type: 1,
                             x: 0,
                             y: 50
                         };
                     } else if (this.cursor.left.isDown) {
                         leftCactus = true;
                         socket.player = {
+                            type: 1,
                             x: -50,
                             y: 0
                         };
@@ -195,24 +199,28 @@ export default class sceneLevel extends Phaser.Scene {
                     if (this.cursor.up.isDown) {
                         upPlayer = true;
                         socket.player = {
+                            type: 2,
                             x: 0,
                             y: -50
                         };
                     } else if (this.cursor.right.isDown) {
                         rightPlayer = true;
                         socket.player = {
+                            type: 2,
                             x: 50,
                             y: 0
                         };
                     } else if (this.cursor.down.isDown) {
                         downPlayer = true;
                         socket.player = {
+                            type: 2,
                             x: 0,
                             y: 50
                         };
                     } else if (this.cursor.left.isDown) {
                         leftPlayer = true;
                         socket.player = {
+                            type: 2,
                             x: -50,
                             y: 0
                         };
@@ -532,8 +540,16 @@ export default class sceneLevel extends Phaser.Scene {
             this.complete = true;
             if (data.type == 1) {
                 this.addNewCactus();
+                this.player.setX(600)
+                this.player.setY(350)
+                this.player.foots.setX(600);
+                this.player.foots.setY(350);
             } else {
                 this.addNewPlayer();
+                this.cactus.setX(50)
+                this.cactus.setY(50)
+                this.cactus.foots.setX(50);
+                this.cactus.foots.setY(50);
             }
         });
         socket.on('allplayers', (data) => {
@@ -601,6 +617,7 @@ export default class sceneLevel extends Phaser.Scene {
             socket.on('remove', () => {
                 this.text.setText("Waiting for more players");
                 this.removePlayer();
+                this.complete = false;
             });
         });
     }
@@ -652,6 +669,7 @@ export default class sceneLevel extends Phaser.Scene {
         }
     }
 
+    
 
 
 

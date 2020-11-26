@@ -22,9 +22,7 @@ export default class sceneWin extends Phaser.Scene {
     }
     update(){
         if(this.Reload.isDown && this.sw){
-            this.scene.restart("sceneLevel");
-            this.scene.start("sceneLevel");
-            
+            location.reload();   
             this.sw = false;
         }
 

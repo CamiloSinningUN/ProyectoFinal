@@ -52,6 +52,7 @@ io.on('connection', function (socket) {
 
       socket.on('move', function (data) {
         socket.player = {
+          type: data.type,
           x: data.x,
           y: data.y
         };
