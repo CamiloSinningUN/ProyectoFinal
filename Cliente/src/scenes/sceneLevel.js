@@ -11,6 +11,9 @@ export default class sceneLevel extends Phaser.Scene {
     //La room esta completa
     complete = false;
 
+    //Lag
+    Compensator = 1000
+
     //Carga en la escena lo requerido
     create() {
 
@@ -97,6 +100,26 @@ export default class sceneLevel extends Phaser.Scene {
         //Muestra el tiempo restante para disparar
         this.cooldown();
 
+        //Compensador de lag
+        if ((this.Compensator < this.time.now) && (this.complete)) {
+            if (this.Im == 1 && this.complete) {
+                socket.player = {
+                    type: 1,
+                    x: this.cactus.foots.x,
+                    y: this.cactus.foots.y
+                }
+            } else if (this.Im == 2 && this.complete) {
+                socket.player = {
+                    type: 2,
+                    x: this.player.foots.x,
+                    y: this.player.foots.y
+                }
+
+            }
+            socket.emit("compensator", socket.player);
+            this.Compensator = this.time.now + 1000;
+        }
+
         //Pone en 0 la velocidad de los avatares
         if ((this.Im == 1) && (!this.complete)) {
             //Pone la velocidad de cactus en cero
@@ -175,7 +198,7 @@ export default class sceneLevel extends Phaser.Scene {
                         socket.emit('shoot');
                         this.cactus.Shoot("cactus");
                         if (this.cactus.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.cactus, true);                          
+                            this.pullTheTriger(this.cactus, true);
                         }
                     }
                 }
@@ -242,7 +265,7 @@ export default class sceneLevel extends Phaser.Scene {
                         socket.emit('shoot');
                         this.player.Shoot("player");
                         if (this.player.anims.currentFrame.isLast) {
-                            this.pullTheTriger(this.player, true);            
+                            this.pullTheTriger(this.player, true);
                         }
                     }
 
@@ -619,6 +642,20 @@ export default class sceneLevel extends Phaser.Scene {
                 this.removePlayer();
                 this.complete = false;
             });
+
+            socket.on('compensation', (pData) => {
+                if (this.Im == 1) {
+                    // this.player.x = pData.x;
+                    // this.player.y = pData.y;
+                    this.player.foots.x = pData.x;
+                    this.player.foots.y = pData.y;
+                } else if (this.Im == 2) {
+                    // this.cactus.x = pData.x;
+                    // this.cactus.y = pData.y;
+                    this.cactus.foots.x = pData.x;
+                    this.cactus.foots.y = pData.y;
+                }
+            });
         });
     }
 
@@ -669,7 +706,7 @@ export default class sceneLevel extends Phaser.Scene {
         }
     }
 
-    
+
 
 
 

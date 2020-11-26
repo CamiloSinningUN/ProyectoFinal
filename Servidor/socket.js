@@ -59,6 +59,11 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('moving', socket.player);
       });
 
+      socket.on('compensator', function(data) {
+        //console.log("jugador: "+data.type+" esta en x: "+data.x);
+        socket.broadcast.emit('compensation',data);
+      });
+
       socket.on('idle', () => {
         socket.broadcast.emit('idling');
       });
