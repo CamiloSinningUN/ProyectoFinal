@@ -1,9 +1,10 @@
-
+//Condiciones iniciales
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
+//Definción de parametros
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/js', express.static(__dirname + '/js'));
 app.use('/assets', express.static(__dirname + '/assets'));
@@ -14,6 +15,8 @@ app.get('/', function (req, res) {
 });
 
 server.lastPlayderID = 0;
+
+//Puerto
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 8082;
@@ -22,10 +25,12 @@ server.listen(port, function () {
   console.log(`Listening on ${server.address().port}`);
 });
 
+//Variables
 var numPlayers = 0;
 var queue = [];
 var inRoom = 0;
 
+//Conexión de jugador
 io.on('connection', (socket) => {
   socket.on('newplayer', () => {
     numPlayers++;
@@ -37,6 +42,7 @@ io.on('connection', (socket) => {
   });
 });
 
+//Crea el avatar
 function Client(socket) {
   //Asigna tipo
   if (inRoom == 0 && numPlayers == 1) {
@@ -56,7 +62,7 @@ function Client(socket) {
     };
   }
 
-  //Muestra los juagdores que ya estan en la partida y agrega a tu personaje a la partida de los demas
+  //Muestra los jugadores que ya estan en la partida y agrega a tu personaje a la partida de los demas
   socket.emit('allplayers', getAllPlayers());
   socket.broadcast.emit('newplayer', socket.player);
 
@@ -70,12 +76,12 @@ function Client(socket) {
     socket.broadcast.emit('moving', socket.player);
   });
 
-  //Para movimiento
+  //Para Lag
   socket.on('compensator', function (data) {
     socket.broadcast.emit('compensation', data);
   });
 
-  //Cuando esat quieto
+  //Cuando esta quieto
   socket.on('idle', () => {
     socket.broadcast.emit('idling');
   });
@@ -86,8 +92,7 @@ function Client(socket) {
   });
 
   //Se desconecta
-  socket.on('disconnect', function () {
-    socket.broadcast.emit('remove');
+  socket.on('disconnect', function () {    
     numPlayers--;
 
     let sw = true;
@@ -98,6 +103,7 @@ function Client(socket) {
     });
 
     if (sw) {
+      socket.broadcast.emit('remove');
       if (socket.player.type == 2) {
         inRoom = 1;
         if (queue.length > 0) {

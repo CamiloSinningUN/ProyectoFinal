@@ -12,7 +12,7 @@ export default class sceneLevel extends Phaser.Scene {
     complete = false;
 
     //Lag
-    Compensator = 1000
+    Compensator = 1000;
 
     //Carga en la escena lo requerido
     create() {
@@ -40,7 +40,6 @@ export default class sceneLevel extends Phaser.Scene {
         //Crea variables para los botones a usar
         this.cursor = this.input.keyboard.createCursorKeys();
         this.shoot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
     }
 
     //Muestra en pantalla el tiempo restante para disparar
@@ -565,7 +564,10 @@ export default class sceneLevel extends Phaser.Scene {
 
     //Lo que concierne a el multijugador
     beginClient() {
+        //Emite al servido que entraste
         socket.emit('newplayer');
+
+        //Carga un jugador nuevo
         socket.on('newplayer', (data) => {
             this.text.setText("");
             this.complete = true;
@@ -583,6 +585,8 @@ export default class sceneLevel extends Phaser.Scene {
                 this.cactus.foots.setY(50);
             }
         });
+
+        //Carga los personajes que ya estan en la partida
         socket.on('allplayers', (data) => {
             for (var i = 0; i < data.length; i++) {
                 if (data[i].type == 1) {
@@ -602,6 +606,8 @@ export default class sceneLevel extends Phaser.Scene {
                     this.complete = true;
                 }
             }
+
+            //Recibe los movimientos del otro jugador
             socket.on('moving', (vData) => {
                 let up = false;
                 let right = false;
@@ -623,6 +629,8 @@ export default class sceneLevel extends Phaser.Scene {
                 }
 
             });
+
+            //Recibe si el otro personaje esta quieto
             socket.on('idling', () => {
                 if (this.Im == 1) {
                     this.player.body.setVelocity(0, 0);
@@ -644,13 +652,14 @@ export default class sceneLevel extends Phaser.Scene {
                 }
             });
 
-
+            //Remueve al otro jugador al desconectarse
             socket.on('remove', () => {
                 this.text.setText("Waiting for more players");
                 this.removePlayer();
                 this.complete = false;
             });
 
+            //Para el lag
             socket.on('compensation', (pData) => {
                 if (this.Im == 1) {
                     // this.player.x = pData.x;
@@ -667,6 +676,7 @@ export default class sceneLevel extends Phaser.Scene {
         });
     }
 
+    //Disparo del cactus
     shootCactus() {
         this.cactus.Shoot("cactus");
         if (this.cactus.anims.currentFrame.isLast) {
@@ -675,6 +685,7 @@ export default class sceneLevel extends Phaser.Scene {
         }
     }
 
+    //Disparo del vaquero
     shootPlayer() {
         this.player.Shoot("player");
         console.log(this.player.anims.currentFrame)
@@ -713,10 +724,6 @@ export default class sceneLevel extends Phaser.Scene {
             this.cactus.foots.destroy();
         }
     }
-
-
-
-
 
 }
 

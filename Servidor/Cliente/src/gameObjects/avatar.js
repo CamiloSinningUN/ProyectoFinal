@@ -9,11 +9,9 @@ export default class avatar extends Phaser.GameObjects.Sprite {
 
         //Incializa pies de avatar
         this.foots = scene.add.rectangle(x, y + this.body.halfHeight, 15, 8, 0xff0000, 0);
-        scene.physics.world.enable(this.foots);
-        // this.socket.on("move",()=>{
-
-        // });            
+        scene.physics.world.enable(this.foots);           
     }
+    
     //En que dirección esta mirando el avatar
     direction;
     // 0 = arriba
@@ -26,6 +24,8 @@ export default class avatar extends Phaser.GameObjects.Sprite {
 
     //Si esta vivo o no
     Alive = true;
+
+    //Cooldown
     bulletTime = 0;
 
     Move(up, right, down, left, name) {

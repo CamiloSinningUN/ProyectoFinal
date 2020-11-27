@@ -5,7 +5,7 @@ export default class Bootloader extends Phaser.Scene{
     }
     //Pone en cache todos los sprites y audios a usar
     preload(){
-        //server
+        //Verifica que se carga todo
         this.load.on("complete",()=>{
             this.scene.start("sceneLevel");
         });
