@@ -14,9 +14,12 @@ app.get('/', function (req, res) {
 });
 
 server.lastPlayderID = 0;
-
-server.listen(process.env.PORT || 8081, function () {
-  console.log('Listening on ' + server.address().port);
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8082;
+}
+server.listen(port, function () {
+  console.log(`Listening on ${server.address().port}`);
 });
 
 var numPlayers = 0;
@@ -97,17 +100,17 @@ function Client(socket) {
     if (sw) {
       if (socket.player.type == 2) {
         inRoom = 1;
-        if(queue.length > 0){
+        if (queue.length > 0) {
           Client(queue.shift());
         }
       } else if (socket.player.type == 1) {
         inRoom = 0;
-        if(queue.length > 0){
+        if (queue.length > 0) {
           Client(queue.shift());
         }
       }
-    }else{
-      queue.splice(queue.indexOf(socket),1);
+    } else {
+      queue.splice(queue.indexOf(socket), 1);
     }
   });
 
